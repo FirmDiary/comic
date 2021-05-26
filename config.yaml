@@ -1,0 +1,29 @@
+app:
+  name: 漫画转换
+  env: local
+  url: http://comic.cc
+
+# 监听本地的端口
+listen: :8080
+
+database:
+  connection: mysql
+  host: 127.0.0.1:3306
+  database: comic
+  user: root
+  password: 123456
+
+rabbitMQ:
+  user: guest
+  password: guest
+  host: 5672
+
+redis:
+  host: 127.0.0.1:6379
+  password: 123456
+
+# 微信小程序相关配置
+miniConfig:
+  appID: wx64030e2c2da6d130
+  appSecret: 45cb5e3293691972b040539d62a26873
+  token: gowechat
