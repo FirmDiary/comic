@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="91268561-b2a4-494d-a10a-abdca24198b1" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/U-2-Net" beforeDir="false" afterPath="$PROJECT_DIR$/common/U-2-Net" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/U-2-Net/test_data/test_portrait_images/portrait_im/img_1585.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/common/U-2-Net/test_data/test_portrait_images/portrait_im/img_1588.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/common/U-2-Net/test_data/test_portrait_images/portrait_im/img_1594.png" beforeDir="false" />
@@ -57,7 +60,7 @@
   </component>
   <component name="GOROOT" url="file://D:/go" />
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/common/U-2-Net" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="false" />
