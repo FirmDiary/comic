@@ -1,0 +1,19 @@
+{
+  "name": "guileb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "prettier": "^1.12.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/helloMonika/glb.git"
+  },
+  "author": "",
+  "license": "ISC"
+}
