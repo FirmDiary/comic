@@ -1,0 +1,88 @@
+version: "3.8"
+services:
+  comicservice:
+    build: backend
+    #容器名
+    container_name: comicapi
+    #镜像名和tag
+    image: comicapi:v1.0
+    restart: always
+    depends_on:
+      - mysql
+      - rabbitmq
+    links:
+      - mysql
+      - rabbitmq
+    ports:
+      - 9090:9090
+    networks:
+      - comicnet
+
+  rabbitmq:
+    image: rabbitmq:3.8.4-management
+    container_name: comic_rabbitmq
+    ports:
+      #erlang发现端口
+      - 4369:4369
+      - 5671:5671
+      #client端通信端口
+      - 5672:5672
+      #管理界面ui端端口
+      - 15672:15672
+      #server间内部通信端口
+      - 25672:25672
+
+    hostname: worknode1
+
+    #设置变量环境
+    environment:
+      RABBITMQ_DEFAULT_VHOST: testvh
+      RABBITMQ_DEFAULT_USER: test
+      RABBITMQ_DEFAULT_PASS: 1234
+      RABBITMQ_LOGS: /var/lib/rabbitmq/rabbitmq.log
+      RABBITMQ_SASL_LOGS: /var/lib/rabbitmq/rabbitmq-sasl.log
+      RABBITMQ_ERLANG_COOKIE: LZJADKXKLULIXFKAALGX
+
+    #宿主机和容器关联的目录.如果非root账号执行，挂载目录必须是登录账号家目录
+    volumes:
+      - /opt/rabbitmq/data:/var/lib/rabbitmq
+      - /opt/rabbitmq/log:/var/log/rabbitmq/log
+
+    #关机或者重启docker同时重启容器
+    restart: always
+    networks:
+      - comicnet
+
+  mysql:
+    image: mysql:5.8
+    container_name: comic_mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATEBASE: comic
+      MYSQL_USER: comic
+      MYSQL_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: 123456
+    volumes:
+      # 挂载数据件目录.如果非root账号执行，挂载目录必须是登录账号家目录
+      - /opt/mysql/data:/var/lib/mysql
+      # 挂载配置文件目录
+      - ./dbconf:/etc/mysql/conf.d
+      # 挂载日志文件目录
+      - /opt/mysql/logs:/logs
+      # 初始化脚本件目录，相对docker-compose所在目录路径
+      - ./dbsql:/docker-entrypoint-initdb.d/
+      #- /etc/localtime:/etc/localtime:ro
+    #关机或者重启docker同时重启容器
+    restart: always
+    command:
+      --character-set-server=utf8
+      --collation-server=utf8_general_ci
+      --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+    networks:
+      - comicnet
+
+networks:
+  comicnet:
+    external: true
+
