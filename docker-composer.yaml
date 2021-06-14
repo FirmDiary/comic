@@ -37,8 +37,8 @@ services:
     #设置变量环境
     environment:
       RABBITMQ_DEFAULT_VHOST: testvh
-      RABBITMQ_DEFAULT_USER: test
-      RABBITMQ_DEFAULT_PASS: 1234
+      RABBITMQ_DEFAULT_USER: azal
+      RABBITMQ_DEFAULT_PASS: 123456
       RABBITMQ_LOGS: /var/lib/rabbitmq/rabbitmq.log
       RABBITMQ_SASL_LOGS: /var/lib/rabbitmq/rabbitmq-sasl.log
       RABBITMQ_ERLANG_COOKIE: LZJADKXKLULIXFKAALGX

@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 9090
 
 #入口
-ENTRYPOINT ["/go/app/aisvc"]
+ENTRYPOINT ["/go/app"]
