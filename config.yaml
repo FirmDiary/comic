@@ -10,12 +10,12 @@ database:
   connection: mysql
   host: 127.0.0.1:3306
   database: comic
-  user: comic
-  password: comic
+  user: root
+  password: 123456
 
 rabbitMQ:
-  user: azal
-  password: 123456
+  user: test
+  password: 1234
   host: 5672
 
 redis:
