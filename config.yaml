@@ -1,7 +1,7 @@
 app:
   name: 漫画转换
   env: local
-  url: http://comic.cc
+  url: http://comic.zwww.cool
 
 # 监听本地的端口
 listen: :8080
