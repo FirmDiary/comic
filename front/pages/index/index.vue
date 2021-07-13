@@ -9,7 +9,7 @@
 				<!-- <view>==</view> -->
 				<view>
 					<image
-						v-if="!img_result"
+						v-if="is_transfer && !img_result"
 						style="width: 120rpx;"
 						src="/static/images/loading_transfer.gif"
 						mode="aspectFit"
@@ -152,8 +152,8 @@ export default {
 		upload() {
 			wx.chooseImage({
 				count: 1,
+				// sizeType:['compressed'],
 				success: res => {
-					// this.$base.showLoading("拼命绘制中...");
 					this.is_transfer = true;
 
 					let file = res.tempFiles[0];
@@ -174,6 +174,10 @@ export default {
 						this.img_result = IMG_OUT_URL + res.data.path;
 						uni.hideLoading();
 						this.is_transfer = false;
+					}).catch(err => {
+						console.error(err)
+						this.is_transfer = false;
+						this.$base.showToast("绘制失败~换张图片试试吧")
 					});
 				},
 			});

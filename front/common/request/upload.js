@@ -42,9 +42,15 @@ class Upload {
 				name: 'file',
 				header,
 				success: (res) => {
-					return resolve(JSON.parse(res.data));
+					if (res.statusCode == 200) {
+						return resolve(JSON.parse(res.data));
+					} else {
+						console.error(res.data.message)
+						return reject(res)
+					}
 				},
 				fail: (err) => {
+					console.error(err)
 					return reject(err);
 				},
 			});
