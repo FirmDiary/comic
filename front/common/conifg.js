@@ -5,7 +5,9 @@ let environment = process.env.NODE_ENV;
 if (environment === 'development') {
 	// domain = 'http://localhost:8081'
 	domain = 'https://comic.zwww.cool'
-} else {}
+} else {
+	domain = 'https://comic.zwww.cool'
+}
 
 const config = {
 	domain,
@@ -17,7 +19,7 @@ const config = {
 	host: domain,
 
 	environment, //环境
-	openLoading: true, //是否开启loading
+	openLoading: false, //是否开启loading
 };
 
 export default config;

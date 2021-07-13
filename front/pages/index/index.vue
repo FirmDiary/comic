@@ -112,6 +112,8 @@ export default {
 
 			modal_show: true,
 			transfer_type: 1,
+
+			is_transfer: false,
 		};
 	},
 	onLoad() {
@@ -151,7 +153,9 @@ export default {
 			wx.chooseImage({
 				count: 1,
 				success: res => {
-					this.$base.showLoading("拼命绘制中...");
+					// this.$base.showLoading("拼命绘制中...");
+					this.is_transfer = true;
+
 					let file = res.tempFiles[0];
 					let file_name = file.name || file.path;
 					this.img_origin = file_name;
@@ -169,6 +173,7 @@ export default {
 					upload.uploadImg(file_name, head).then(res => {
 						this.img_result = IMG_OUT_URL + res.data.path;
 						uni.hideLoading();
+						this.is_transfer = false;
 					});
 				},
 			});
@@ -195,6 +200,10 @@ export default {
 		},
 
 		showModal(e) {
+			if (this.is_transfer) {
+				this.$base.showToast('拼命绘制中...');
+				return;
+			}
 			this.modal_show = true;
 		},
 		hideModal(e) {
