@@ -60,7 +60,6 @@ export const showToast = (title, position = 'center', duration = 1500) => {
 
 
 export const showLoading = (title = '数据加载中', mask = true) => {
-	console.log(title);
 	uni.showLoading({
 		title: title,
 		mask: mask

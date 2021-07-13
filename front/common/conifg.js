@@ -4,7 +4,7 @@ let domain;
 let environment = process.env.NODE_ENV;
 if (environment === 'development') {
 	// domain = 'http://localhost:8081'
-	domain = 'http://comic.zwww.cool'
+	domain = 'https://comic.zwww.cool'
 } else {}
 
 const config = {

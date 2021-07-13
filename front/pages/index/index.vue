@@ -69,6 +69,8 @@
 import Upload from '@/common/request/upload.js';
 let upload = new Upload();
 
+import { downloadFile } from '@/common/helper/utils.js';
+
 const TRANSFER_TYPE = [
 	{
 		label: '脸部',
@@ -92,6 +94,8 @@ const ETCS = {
 	2: ['/static/images/face4.png', '/static/images/face5.png', '/static/images/face6.png'],
 };
 
+const IMG_OUT_URL = 'https://comic-img.zwww.cool/out/';
+
 export default {
 	data() {
 		return {
@@ -111,9 +115,6 @@ export default {
 		};
 	},
 	onLoad() {
-		// setTimeout(() => {
-		// 	this.img_result = 'http://tmp/kTg0GUFo0P9n51a11118bbd4eecbb88f79567e133761.jpg';
-		// }, 3000);
 		this.checkLogin();
 	},
 	computed: {
@@ -150,10 +151,11 @@ export default {
 			wx.chooseImage({
 				count: 1,
 				success: res => {
-					this.$base.showLoading();
+					this.$base.showLoading("拼命绘制中...");
 					let file = res.tempFiles[0];
 					let file_name = file.name || file.path;
 					this.img_origin = file_name;
+					this.img_result = '';
 					let file_type = file_name.substr(file_name.lastIndexOf('.') + 1).toLowerCase();
 					if (this.image_support.includes(file_type) && file.size > 1024 * 1024 * this.image_size) {
 						this.$base.showToast(`图片大小请控制在${this.image_size}兆以内`);
@@ -165,7 +167,7 @@ export default {
 						transfer_type: this.transfer_type,
 					};
 					upload.uploadImg(file_name, head).then(res => {
-						this.img_result = res.data.path;
+						this.img_result = IMG_OUT_URL + res.data.path;
 						uni.hideLoading();
 					});
 				},
@@ -173,8 +175,10 @@ export default {
 		},
 
 		save() {
-			uni.saveImageToPhotosAlbum({
-				filePath: this.img_result,
+			downloadFile(this.img_result).then(filePath => {
+				uni.saveImageToPhotosAlbum({
+					filePath,
+				});
 			});
 		},
 
@@ -248,7 +252,7 @@ page {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		margin-top: 40rpx;
+		margin-top: 140rpx;
 		.cu-btn {
 			margin-bottom: 30rpx;
 			width: 168rpx;

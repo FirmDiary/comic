@@ -48,9 +48,10 @@ class Go {
 				url += '/' + que
 			})
 		}
-		if (this._goSetting.loading) {
-			showLoading()
-		}
+		// console.log(this._goSetting);
+		// if (this._goSetting.loading) {
+		// 	showLoading()
+		// }
 		return new Promise((resolve, reject) => {
 			this.request({
 				url,
@@ -113,96 +114,3 @@ class Go {
 
 }
 export default Go;
-
-
-
-
-
-// import config from '../conifg.js';
-
-// import {
-// 	showLoading,
-// 	showToast,
-// } from '../helper/base.js';
-
-// import Cache from '../helper/cache.js';
-// const cache = new Cache();
-
-// const HEADER = {
-// 	'content-type': 'application/json',
-// };
-
-// /**
-//  * @author Azal
-//  * @date 2020/4/29 10:02
-//  * @description http请求
-//  */
-// const go = (path, data = {}, type = 'get', {
-// 	special = false, //特殊不需要验证是否选择门店的
-// 	loading = true, //是否要loading
-// 	full_url = false, //是否是完整路径，否会自动组装
-// 	show_err = true, //如果有错误信息返回 是否弹出
-// } = {}) => {
-
-// 	let _loading = true;
-// 	if (loading && type !== 'post') {
-// 		_loading = config.openLoading;
-// 	} else {
-// 		_loading = loading;
-// 	}
-// 	if (_loading) {
-// 		showLoading();
-// 	}
-// 	let shop = cache.get('shop_info');
-// 	if (!shop && !special) {
-// 		uni.redirectTo({
-// 			url: '/pages/store/select'
-// 		});
-// 		return;
-// 	}
-// 	return new Promise((resolve, reject) => {
-// 		let token = cache.get('token');
-// 		let header = HEADER;
-// 		if (token) {
-// 			Object.assign(header, {
-// 				Authorization: token
-// 			});
-// 		}
-// 		let url = full_url ? path : `${config.host}/${config.brand_id}/${shop ? shop.id : 0}/${path}`;
-// 		uni.request({
-// 			url,
-// 			data,
-// 			header,
-// 			method: type ? type.toUpperCase() : 'GET',
-// 			success: (res) => {
-// 				if (res.statusCode === 401) {
-// 					//token过期
-// 					uni.clearStorage();
-// 					uni.reLaunch({
-// 						url: '/pages/index/index'
-// 					});
-// 					return reject(res);
-// 				}
-// 				if (res.data.code === 0) {
-// 					return resolve(res);
-// 				} else {
-// 					console.log('Fail→');
-// 					console.log(JSON.stringify(res));
-// 					if (show_err) {
-// 						showToast(res.data.message);
-// 					}
-// 					return reject(res);
-// 				}
-// 			},
-// 			fail: (err) => {
-// 				console.log('请求错误' + JSON.stringify(err));
-// 				showToast('请将错误页面截屏发送给我们，以便进行问题追踪。');
-// 				return reject(err);
-// 			},
-// 		});
-// 	});
-// };
-
-
-
-// export default go;

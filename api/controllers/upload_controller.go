@@ -4,6 +4,7 @@ import (
 	"comic/api/middleware"
 	"comic/common"
 	"comic/services"
+	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"strconv"
@@ -18,7 +19,8 @@ func (u *UploadController) BeforeActivation(b mvc.BeforeActivation) {
 }
 
 func (u *UploadController) Transfer() common.Response {
-	transferTypes := u.Ctx.GetHeader("transferTypes")
+	transferTypes := u.Ctx.GetHeader("transfer_type")
+	fmt.Println(transferTypes)
 	if transferTypes == "" {
 		transferTypes = "1"
 	}
