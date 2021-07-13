@@ -78,7 +78,8 @@ func (u UploadService) Transfer(file multipart.File, userId int64, transferType 
 	}
 
 	fmt.Print(res)
-	path = dir + Out + name + ImgType
+	path = name + ImgType
+	//path = dir + Out + name + ImgType
 
 	//添加数据库记录
 	u.repository.Create(&datamodels.Upload{
