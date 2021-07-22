@@ -22,7 +22,7 @@ func (u *UploadController) Transfer() common.Response {
 	transferTypes := u.Ctx.GetHeader("transfer_type")
 	fmt.Println(transferTypes)
 	if transferTypes == "" {
-		transferTypes = "1"
+		transferTypes = "2"
 	}
 	transferType, err := strconv.Atoi(transferTypes)
 	if err != nil {
