@@ -1,4 +1,4 @@
-package services
+package transfer
 
 import (
 	"comic/common"
@@ -6,24 +6,15 @@ import (
 	"comic/repositories"
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"os"
 )
-
-var dir, _ = os.Getwd()
 
 type TransferConst struct {
 	Shell     string //shell执行命令
 	ShellPath string //shell执行目录
 	TTL       int64  //文件存储时间 秒
 }
-
-const (
-	In      = "/common/U-2-Net/upload/in/"  //文件输入目录
-	Out     = "/common/U-2-Net/upload/out/" //文件输出目录
-	ImgType = ".png"
-)
 
 func loadConst(transferType int) (consts *TransferConst) {
 	if transferType == datamodels.TypeFace {
@@ -91,23 +82,4 @@ func (u UploadService) Transfer(file multipart.File, userId int64, transferType 
 	//DelImg(name, consts.TTL)
 
 	return
-}
-
-//删除识别的文件
-func DelUploadImg(name string) error {
-	fileIn := dir + In + name + ImgType
-	fileOut := dir + Out + name + ImgType
-
-	var err error
-	err = os.Remove(fileIn)
-	if err != nil {
-		log.Fatalln(err)
-		return err
-	}
-	err = os.Remove(fileOut)
-	if err != nil {
-		log.Fatalln(err)
-		return err
-	}
-	return nil
 }
