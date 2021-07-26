@@ -168,7 +168,7 @@ export default {
 					}
 					let head = {
 						Authorization: 'Bearer ' + this.auth.token,
-						transfer_type: this.transfer_type,
+						// transfer_type: this.transfer_type,
 					};
 					upload.uploadImg(file_name, head).then(res => {
 						this.img_result = IMG_OUT_URL + res.data.path;

@@ -17,7 +17,7 @@ type UploadController struct {
 
 func (u *UploadController) BeforeActivation(b mvc.BeforeActivation) {
 	b.HandleMany("POST", "/transferU2", "TransferU2", middleware.AuthTokenHandler().Serve)
-	b.HandleMany("POST", "/transferOldFix", "TransferOldFix")
+	b.HandleMany("POST", "/transferOldFix", "TransferOldFix", middleware.AuthTokenHandler().Serve)
 }
 
 func getFile(u *UploadController) (multipart.File, error) {
