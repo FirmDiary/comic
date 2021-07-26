@@ -22,7 +22,13 @@ const (
 )
 
 func GetFileUrl(name string, path string) string {
-	return ImgUrlPrefix + path + name + ImgType
+	var pathMid string
+	if path == In {
+		pathMid = "/in/"
+	} else {
+		pathMid = "/out/"
+	}
+	return ImgUrlPrefix + pathMid + name + ImgType
 }
 
 func SaveImgFileToLocal(file multipart.File, path string) string {
