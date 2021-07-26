@@ -35,8 +35,6 @@ class Upload {
 	 * @param {Object} path
 	 */
 	uploadImg(path, header = {}) {
-		console.log(API);
-		console.log(API.transfer_old_fix);
 		return new Promise((resolve, reject) => {
 			wx.uploadFile({
 				url: `${config.domain}/${API.transfer_old_fix.value}`,
@@ -44,7 +42,6 @@ class Upload {
 				name: 'file',
 				header,
 				success: (res) => {
-					console.log(res);
 					if (res.statusCode == 200) {
 						return resolve(JSON.parse(res.data));
 					} else {

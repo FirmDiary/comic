@@ -171,7 +171,7 @@ export default {
 						// transfer_type: this.transfer_type,
 					};
 					upload.uploadImg(file_name, head).then(res => {
-						this.img_result = IMG_OUT_URL + res.data.path;
+						this.img_result = IMG_OUT_URL + res.data.filename;
 						uni.hideLoading();
 						this.is_transfer = false;
 					}).catch(err => {
