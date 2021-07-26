@@ -1,8 +1,9 @@
 .idea
 common/U-2-Net.zip
 
+upload/in/
+upload/out/
+
 !upload/in/README.md
 !upload/out/README.md
 
-upload/out/
-upload/in/
