@@ -1,21 +1,18 @@
 <template>
 	<view class="container">
-		<cu-custom bgImage="/static/images/banner.png"></cu-custom>
-
-		<!-- <cu-custom bgImage="/static/images/banner.png" :isBack="true" ></cu-custom> -->
-		<!-- <cu -->
-		<!-- <image class="logo" src="/static/images/banner.png" mode="aspectFit"></image> -->
-
-		<view class="transfer" @tap="showModal"><view class="btn cu-btn bg-yellow lg shadow">开始</view></view>
+		<image class="logo" src="/static/images/banner.png" mode="aspectFit"></image>
 		
 		<view class="preview">
-			<view><image @tap="previewImgs(0)" :src="img_origin" mode="aspectFill"></image></view>
 			<view v-if="img_result"><image @tap="previewImgs(1)" :src="img_result" mode="aspectFill"></image></view>
+			<view><image @tap="previewImgs(0)" :src="img_origin" mode="aspectFill"></image></view>
 			<view class="preview-desc" v-if="img_desc">{{ img_desc }}</view>
 			<view class="box-btns" v-if="img_result && is_user_do">
 				<view class="cu-btn bg-brown shadow radius" @tap="save">保存</view>
 			</view>
 		</view>
+		<view class="transfer" @tap="showModal"><view class="btn cu-btn bg-yellow lg shadow">开始</view></view>
+
+
 
 		<view class="cu-modal select_transfer" :class="modal_show ? 'show' : ''" @tap="hideModal">
 			<view class="cu-dialog" @tap.stop="">
@@ -66,8 +63,6 @@ let upload = new Upload();
 import config from '@/common/conifg.js';
 import { downloadFile } from '@/common/helper/utils.js';
 
-import cuCustom from '@/static/colorui/components/cu-custom.vue';
-
 const TRANSFER_TYPE = [
 	{
 		label: '脸部',
@@ -94,9 +89,6 @@ const ETCS = {
 const IMG_OUT_URL = config.img_prefix;
 
 export default {
-	components: {
-		cuCustom,
-	},
 	data() {
 		return {
 			TRANSFER_TYPE,
@@ -119,7 +111,6 @@ export default {
 			is_transfer: false,
 		};
 	},
-
 	onLoad() {
 		this.checkLogin();
 	},
@@ -230,12 +221,12 @@ export default {
 <style lang="scss">
 page {
 	color: #ffffff;
+	background-color:#333333 ;
 }
 
 .container {
 	min-height: 100vh;
 	background-image: linear-gradient(15deg, #333333, #fff);
-	padding-bottom: 80rpx;
 }
 
 .logo {
@@ -249,7 +240,7 @@ page {
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: center;
-	margin-top: 40rpx;
+
 	padding: 0 20rpx;
 
 	image {

@@ -12,11 +12,13 @@ if (environment === 'development') {
 const config = {
 	domain,
 
-	brand_id: 1,
+	app_id: 1,
 
 	version: 'v1.0.0',
 
 	host: domain,
+	
+	img_prefix: "https://comic-img.zwww.cool/out/",
 
 	environment, //环境
 	openLoading: false, //是否开启loading

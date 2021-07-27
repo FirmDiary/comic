@@ -9,9 +9,10 @@ import store from '@/store/index.js';
 
 class Go {
 	_goSetting = {}
-	_api={}
+	_api = {}
 	_header = {
 		'content-type': 'application/json',
+		'app_id': config.app_id,
 	}
 
 	constructor() {
@@ -99,15 +100,14 @@ class Go {
 			params.method = params.method ? params.method.toUpperCase() : 'GET'
 			uni.request({
 				...params,
-				header:this._header,
+				header: this._header,
 				success: (res) => {
 					return resolve(res)
 				},
 				fail: (err) => {
 					return reject(err)
 				},
-				complete:() => {
-				}
+				complete: () => {}
 			})
 		})
 	}
