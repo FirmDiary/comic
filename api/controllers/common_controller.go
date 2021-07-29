@@ -41,12 +41,12 @@ func (c *CommonController) OldEtc() common.Response {
 		{
 			"origin": "https://comic-img.zwww.cool/images/etco5.png",
 			"res":    "https://comic-img.zwww.cool/images/etcr5.png",
-			"desc":   "《辛德勒的名单》（1993年）该片改编自澳大利亚小说家托马斯·肯尼利的同名小说，讲述了一名身在波兰的的德国人辛德勒，在二战时雇用了1100多名犹太人在他的工厂工作，帮助他们逃过被屠杀的劫数。获得了第66届奥斯卡金像奖最佳影片等7个奖项",
+			"desc":   "《辛德勒的名单》（1993年）该片改编自澳大利亚小说家托马斯·肯尼利的同名小说，荣获第66届奥斯卡金像奖最佳影片等7个奖项",
 		},
 		{
 			"origin": "https://comic-img.zwww.cool/images/etco6.png",
 			"res":    "https://comic-img.zwww.cool/images/etcr6.png",
-			"desc":   "《影》凭借着布景、服装等一系列手段，将拍摄物全部变为黑白，并附上了中国特有的特色，那就是水墨画。得益于整体统一的水墨画美学体系，影片画面干净写意，拍摄起动作场面来，飘逸、灵动、清隽。",
+			"desc":   "《影》凭借着布景、服装等一系列手段，将拍摄物全部变为黑白，并附上了中国特有的特色，那就是水墨画。",
 		},
 	}
 	return common.ReSuccessData(etc)
