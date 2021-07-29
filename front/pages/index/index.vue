@@ -193,8 +193,7 @@ export default {
 						Authorization: 'Bearer ' + this.auth.token,
 						transfer_type: this.transfer_type,
 					};
-					upload
-						.uploadImg(file_name, head)
+					upload.uploadImg(file_name, head)
 						.then(res => {
 							this.img_result = IMG_OUT_URL + res.data.filename;
 							this.is_transfering = false;
