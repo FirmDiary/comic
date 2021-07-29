@@ -6,13 +6,8 @@
 			'--status_bar_height': system_info.statusBarHeight + 'px',
 		}"
 	>
-		<!-- <cu-custom bgImage="https://comic-img.zwww.cool/images/banner.png"></cu-custom> -->
-		<!-- 		<image class="logo" src="https://comic-img.zwww.cool/images/banner.png" mode="aspectFit"></image>
-
-		 -->
-
 		<swiper
-			v-if="show_etcs"
+			v-if="etcs.length"
 			class="screen-swiper etcs"
 			:class="dotStyle ? 'square-dot' : 'round-dot'"
 			:indicator-dots="true"
@@ -26,7 +21,7 @@
 		>
 			<swiper-item v-for="(item, index) in etcs" :key="index" :class="cardCur == index ? 'cur' : ''">
 				<view class="swiper-item">
-					<view class="etcs-imgs" :class="item.direction == IMG_DIRECTION_ROW ? 'h-50' : 'w-50'">
+					<view class="etcs-imgs" :class="item.direction == IMG_DIRECTION_COLUMN ? 'h-50' : 'w-50'">
 						<image @tap="previewImgs(0)" :src="item.origin" mode="aspectFill"></image>
 						<image @tap="previewImgs(0)" :src="item.res" mode="aspectFill"></image>
 					</view>
@@ -38,7 +33,7 @@
 		<view class="transfer" @tap="upload"><view class="btn cu-btn bg-yellow lg shadow">开始</view></view>
 
 		<view class="preview" v-if="has_transfer">
-			<view class="preview-imgs" :class="img_direction == IMG_DIRECTION_ROW ? 'h-50' : 'w-50'">
+			<view class="preview-imgs" :class="img_direction == IMG_DIRECTION_COLUMN ? 'h-50' : 'w-50'">
 				<image @tap="previewImgs(0)" :src="img_origin" mode="aspectFill"></image>
 				<image @tap="previewImgs(1)" v-if="img_result" :src="img_result" mode="aspectFill"></image>
 			</view>
@@ -62,8 +57,8 @@ import { downloadFile, getImgInfo } from '@/common/helper/utils.js';
 
 const IMG_OUT_URL = config.img_prefix;
 
-const IMG_DIRECTION_ROW = 1;
-const IMG_DIRECTION_COLUMN = 2;
+const IMG_DIRECTION_ROW = 'row';
+const IMG_DIRECTION_COLUMN = 'column';
 
 export default {
 	components: {
@@ -84,7 +79,7 @@ export default {
 			image_size: 10,
 
 			img_origin: '', //转换前
-			img_derection: 1, //转换前
+			img_direction: IMG_DIRECTION_COLUMN, //转换前
 			img_result: '',
 
 			modal_show: true,
@@ -103,27 +98,14 @@ export default {
 	},
 	computed: {
 		is_load_over() {
-			return this.show_etcs;
-		},
-		show_etcs() {
-			return this.etc_directions.length == this.etcs.length;
+			return true;
 		},
 	},
 	methods: {
 		async loadEtcs() {
 			let info = {};
 			this.$go.to('old_etc').then(res => {
-				console.log(res);
 				this.etcs = res.data;
-				this.etcs.forEach(etc => {
-					(async () => {
-						info = await getImgInfo(etc.res);
-						Object.assign(etc, {
-							direction: info.width > info.height ? IMG_DIRECTION_ROW : IMG_DIRECTION_COLUMN,
-						});
-						this.etc_directions.push(1);
-					})();
-				});
 			});
 		},
 
@@ -171,15 +153,6 @@ export default {
 
 					let file = res.tempFiles[0];
 					let file_name = file.name || file.path;
-					
-					let self = this
-					uni.getImageInfo({
-						src:file_name,
-						success(info) {
-							self.img_derection = info.width > info.height ? IMG_DIRECTION_ROW : IMG_DIRECTION_COLUMN;
-							console.log(res);
-						}
-					})
 
 					this.img_origin = file_name;
 					this.img_result = '';
@@ -193,9 +166,11 @@ export default {
 						Authorization: 'Bearer ' + this.auth.token,
 						transfer_type: this.transfer_type,
 					};
-					upload.uploadImg(file_name, head)
+					upload
+						.uploadImg(file_name, head)
 						.then(res => {
 							this.img_result = IMG_OUT_URL + res.data.filename;
+							this.img_direction = res.data.direction;
 							this.is_transfering = false;
 							uni.hideLoading();
 							this.$base.showToast('上色成功!');
@@ -266,10 +241,13 @@ page {
 .h-50 image {
 	height: 50% !important;
 	border-radius: 10rpx;
-	width: 100%;
+	width: 100% !important;
 }
 .h-50 image:first-child {
 	margin-bottom: 10rpx;
+}
+.w-50 {
+	flex-wrap: inherit !important;
 }
 .w-50 image {
 	max-height: 100%;
@@ -312,15 +290,15 @@ page {
 	&-imgs {
 		height: 89%;
 		display: flex;
-		// flex-wrap: wrap;
+		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
 	}
 
 	image {
-		// width: 100%;
 		display: block;
-		// height: 50%;
+		height: 100%;
+		height: 100%;
 	}
 }
 
