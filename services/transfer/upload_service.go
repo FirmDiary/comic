@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"comic/common"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
 	_ "image/png"
 	"io"
 	"log"
@@ -49,7 +47,7 @@ func SaveImgFileToLocal(file multipart.File, path string) string {
 	return name
 }
 
-func SaveImgUrlToLocal(fileUrl string, name string, path string) (string, direction string) {
+func SaveImgUrlToLocal(fileUrl string, name string, path string) string {
 	res, err := http.Get(fileUrl)
 	if err != nil {
 		log.Fatalln(err)
@@ -68,6 +66,15 @@ func SaveImgUrlToLocal(fileUrl string, name string, path string) (string, direct
 
 	io.Copy(writer, reader)
 
+	return GetFileUrl(name, Out)
+}
+
+func GetImgDirection(fileUrl string) (direction string) {
+	res, err := http.Get(fileUrl)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer res.Body.Close()
 	img, _, err := image.Decode(res.Body)
 	if err != nil {
 		log.Fatalln(err)
@@ -80,7 +87,6 @@ func SaveImgUrlToLocal(fileUrl string, name string, path string) (string, direct
 	} else {
 		direction = DirectionRow
 	}
-
 	return
 }
 

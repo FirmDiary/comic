@@ -62,7 +62,9 @@ func (d DeepAiService) TransferOldFix(file multipart.File, userId int64) (filena
 	}
 
 	resUrl := cc.Get("output_url").MustString()
-	_, direction = SaveImgUrlToLocal(resUrl, filename, Out)
+	SaveImgUrlToLocal(resUrl, filename, Out)
+
+	direction = GetImgDirection(fileUrlFull)
 
 	//添加数据库记录
 	d.repository.Create(&datamodels.Upload{
