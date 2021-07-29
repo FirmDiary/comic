@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"comic/common"
 	"image"
+	_ "image/png"
 	"io"
 	"log"
 	"mime/multipart"
