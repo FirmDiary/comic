@@ -56,6 +56,18 @@ func SaveImgUrlToLocal(fileUrl string, name string, path string) (string, direct
 	}
 	defer res.Body.Close()
 
+	reader := bufio.NewReaderSize(res.Body, 32*1024)
+
+	filename := dir + path + name + ImgType
+	file, err := os.Create(filename)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer file.Close()
+	writer := bufio.NewWriter(file)
+
+	io.Copy(writer, reader)
+
 	img, _, err := image.Decode(res.Body)
 	if err != nil {
 		log.Fatalln(err)
@@ -69,17 +81,6 @@ func SaveImgUrlToLocal(fileUrl string, name string, path string) (string, direct
 		direction = DirectionRow
 	}
 
-	reader := bufio.NewReaderSize(res.Body, 32*1024)
-
-	filename := dir + path + name + ImgType
-	file, err := os.Create(filename)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer file.Close()
-	writer := bufio.NewWriter(file)
-
-	io.Copy(writer, reader)
 	return
 }
 
