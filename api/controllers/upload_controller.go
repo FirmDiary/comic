@@ -42,7 +42,7 @@ func (u *UploadController) TransferOldFix() common.Response {
 	user := middleware.ParseTokenToUser(u.Ctx)
 
 	service := transfer.NewDeepAiService()
-	filename, err := service.TransferOldFix(file, user.Id)
+	filename, direction, err := service.TransferOldFix(file, user.Id)
 
 	if err != nil {
 		u.Ctx.StatusCode(iris.StatusInternalServerError)
@@ -51,7 +51,8 @@ func (u *UploadController) TransferOldFix() common.Response {
 	}
 
 	return common.ReSuccessData(map[string]string{
-		"filename": filename,
+		"filename":  filename,
+		"direction": direction,
 	})
 }
 

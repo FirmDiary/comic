@@ -20,7 +20,7 @@ const (
 )
 
 type IDeepAiService interface {
-	TransferOldFix(file multipart.File, userId int64) (filename string, err error)
+	TransferOldFix(file multipart.File, userId int64) (filename string, direction string, err error)
 }
 
 type DeepAiService struct {
@@ -31,7 +31,7 @@ func NewDeepAiService() IDeepAiService {
 	return &DeepAiService{repository: repositories.NewUploadRepository()}
 }
 
-func (d DeepAiService) TransferOldFix(file multipart.File, userId int64) (filename string, err error) {
+func (d DeepAiService) TransferOldFix(file multipart.File, userId int64) (filename string, direction string, err error) {
 	filename = SaveImgFileToLocal(file, In)
 	fileUrlFull := GetFileUrl(filename, In)
 
@@ -52,17 +52,17 @@ func (d DeepAiService) TransferOldFix(file multipart.File, userId int64) (filena
 	if resp.StatusCode != 200 {
 		fmt.Println(resp)
 		fmt.Println(string(body))
-		return filename, errors.New("解析出现错误，请重试")
+		return filename, direction, errors.New("解析出现错误，请重试")
 	}
 	cc, err := simplejson.NewJson(body)
 	if err != nil {
 		fmt.Println(resp)
 		fmt.Println(string(body))
-		return filename, errors.New("json解析出现错误，请重试")
+		return filename, direction, errors.New("json解析出现错误，请重试")
 	}
 
 	resUrl := cc.Get("output_url").MustString()
-	SaveImgUrlToLocal(resUrl, filename, Out)
+	_, direction = SaveImgUrlToLocal(resUrl, filename, Out)
 
 	//添加数据库记录
 	d.repository.Create(&datamodels.Upload{

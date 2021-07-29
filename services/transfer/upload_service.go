@@ -3,6 +3,7 @@ package transfer
 import (
 	"bufio"
 	"comic/common"
+	"image"
 	"io"
 	"log"
 	"mime/multipart"
@@ -16,6 +17,9 @@ const (
 	In      = "/upload/in/"  //文件输入目录
 	Out     = "/upload/out/" //文件输出目录
 	ImgType = ".png"
+
+	DirectionColumn = "column"
+	DirectionRow    = "row"
 
 	ImgUrlPrefix = "https://comic-img.zwww.cool" //图片域名
 
@@ -42,12 +46,25 @@ func SaveImgFileToLocal(file multipart.File, path string) string {
 	return name
 }
 
-func SaveImgUrlToLocal(fileUrl string, name string, path string) string {
+func SaveImgUrlToLocal(fileUrl string, name string, path string) (string, direction string) {
 	res, err := http.Get(fileUrl)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer res.Body.Close()
+
+	img, _, err := image.Decode(res.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	width := img.Bounds().Dx()
+	height := img.Bounds().Dy()
+
+	if width > height {
+		direction = DirectionColumn
+	} else {
+		direction = DirectionRow
+	}
 
 	reader := bufio.NewReaderSize(res.Body, 32*1024)
 
@@ -60,7 +77,7 @@ func SaveImgUrlToLocal(fileUrl string, name string, path string) string {
 	writer := bufio.NewWriter(file)
 
 	io.Copy(writer, reader)
-	return name
+	return
 }
 
 //删除识别的文件

@@ -17,7 +17,7 @@
 			:class="dotStyle ? 'square-dot' : 'round-dot'"
 			:indicator-dots="true"
 			:circular="true"
-			:autoplay="false"
+			:autoplay="true"
 			interval="5000"
 			duration="500"
 			@change="cardSwiper"
@@ -37,15 +37,15 @@
 
 		<view class="transfer" @tap="upload"><view class="btn cu-btn bg-yellow lg shadow">开始</view></view>
 
-		<view class="preview" v-if="transfer_over">
-			<view class="preview-imgs">
+		<view class="preview" v-if="has_transfer">
+			<view class="preview-imgs" :class="img_direction == IMG_DIRECTION_ROW ? 'h-50' : 'w-50'">
 				<image @tap="previewImgs(0)" :src="img_origin" mode="aspectFill"></image>
 				<image @tap="previewImgs(1)" v-if="img_result" :src="img_result" mode="aspectFill"></image>
 			</view>
 
 			<view class="box-btns" v-if="img_result">
-				<view class="cu-btn bg-brown shadow radius" @tap="save">保存</view>
-				<view class="cu-btn bg-brown shadow radius" @tap="share">分享</view>
+				<view class="cu-btn bg-yellow shadow radius" @tap="save">保存</view>
+				<view class="cu-btn bg-yellow shadow radius" @tap="share">分享</view>
 			</view>
 		</view>
 	</view>
@@ -77,29 +77,28 @@ export default {
 			auth: {},
 			system_info: getApp().globalData.system_info,
 
-			etcs: [
-				
-			],
+			etcs: [],
 			etc_directions: [],
 
 			image_support: ['png', 'jpg'],
 			image_size: 10,
 
-			img_origin: 'https://comic-img.zwww.cool/out/s0z4kdgdes9y.png', //转换前
-			img_result: 'https://comic-img.zwww.cool/out/s0z4kdgdes9y.png',
+			img_origin: '', //转换前
+			img_derection: 1, //转换前
+			img_result: '',
 
 			modal_show: true,
 			transfer_type: 1,
 
 			is_transfering: false,
-			transfer_over: false,
+			has_transfer: false,
 
 			cardCur: 0,
 		};
 	},
 
 	onLoad() {
-		// this.checkLogin();
+		this.checkLogin();
 		this.loadEtcs();
 	},
 	computed: {
@@ -115,7 +114,7 @@ export default {
 			let info = {};
 			this.$go.to('old_etc').then(res => {
 				console.log(res);
-				this.etcs = res.data
+				this.etcs = res.data;
 				this.etcs.forEach(etc => {
 					(async () => {
 						info = await getImgInfo(etc.res);
@@ -125,7 +124,7 @@ export default {
 						this.etc_directions.push(1);
 					})();
 				});
-			})
+			});
 		},
 
 		checkLogin() {
@@ -151,7 +150,7 @@ export default {
 			});
 		},
 
-		upload() {
+		async upload() {
 			if (this.is_transfering) {
 				this.$base.showToast('拼命绘制中...');
 				return;
@@ -160,11 +159,11 @@ export default {
 				count: 1,
 				// sizeType:['compressed'],
 				success: res => {
-					this.transfer_over = true;
+					this.has_transfer = true;
 					setTimeout(() => {
 						uni.pageScrollTo({
 							scrollTop: this.system_info.screenHeight,
-							duration:1000
+							duration: 1000,
 						});
 					}, 100);
 					this.$base.showLoading('上色中...');
@@ -172,6 +171,16 @@ export default {
 
 					let file = res.tempFiles[0];
 					let file_name = file.name || file.path;
+					
+					let self = this
+					uni.getImageInfo({
+						src:file_name,
+						success(info) {
+							self.img_derection = info.width > info.height ? IMG_DIRECTION_ROW : IMG_DIRECTION_COLUMN;
+							console.log(res);
+						}
+					})
+
 					this.img_origin = file_name;
 					this.img_result = '';
 					let file_type = file_name.substr(file_name.lastIndexOf('.') + 1).toLowerCase();
@@ -189,7 +198,7 @@ export default {
 						.then(res => {
 							this.img_result = IMG_OUT_URL + res.data.filename;
 							this.is_transfering = false;
-							uni.hideLoading()
+							uni.hideLoading();
 							this.$base.showToast('上色成功!');
 						})
 						.catch(err => {
@@ -257,9 +266,19 @@ page {
 }
 .h-50 image {
 	height: 50% !important;
+	border-radius: 10rpx;
+	width: 100%;
+}
+.h-50 image:first-child {
+	margin-bottom: 10rpx;
 }
 .w-50 image {
+	max-height: 100%;
+	border-radius: 10rpx;
 	width: 50% !important;
+}
+.w-50 image:first-child {
+	margin-right: 10rpx;
 }
 
 .etcs {
@@ -294,15 +313,15 @@ page {
 	&-imgs {
 		height: 89%;
 		display: flex;
-		flex-wrap: wrap;
+		// flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
 	}
 
 	image {
-		width: 100%;
+		// width: 100%;
 		display: block;
-		height: 50%;
+		// height: 50%;
 	}
 }
 
