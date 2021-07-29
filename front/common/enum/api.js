@@ -11,6 +11,12 @@ const API = {
 		value: 'upload/transferOldFix',
 		method: 'post',
 	},
+	'old_etc': {
+		label: '获取案例',
+		value: 'common/old/etc',
+		method: 'get',
+		no_auth: true,
+	},
 }
 
 export default API;

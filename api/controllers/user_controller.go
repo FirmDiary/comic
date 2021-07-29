@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
+	"net/http"
 )
 
 type UserController struct {
@@ -27,7 +28,7 @@ func (c *UserController) parseForm() {
 }
 
 func (c *UserController) BeforeActivation(b mvc.BeforeActivation) {
-	b.HandleMany("POST", "/login", "Login")
+	b.HandleMany(http.MethodPost, "/login", "Login")
 }
 
 func (c *UserController) Login() common.Response {

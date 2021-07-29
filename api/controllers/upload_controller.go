@@ -8,6 +8,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"mime/multipart"
+	"net/http"
 	"strconv"
 )
 
@@ -16,8 +17,8 @@ type UploadController struct {
 }
 
 func (u *UploadController) BeforeActivation(b mvc.BeforeActivation) {
-	b.HandleMany("POST", "/transferU2", "TransferU2", middleware.AuthTokenHandler().Serve)
-	b.HandleMany("POST", "/transferOldFix", "TransferOldFix", middleware.AuthTokenHandler().Serve)
+	b.HandleMany(http.MethodPost, "/transferU2", "TransferU2", middleware.AuthTokenHandler().Serve)
+	b.HandleMany(http.MethodPost, "/transferOldFix", "TransferOldFix", middleware.AuthTokenHandler().Serve)
 }
 
 func getFile(u *UploadController) (multipart.File, error) {

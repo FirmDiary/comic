@@ -6,6 +6,7 @@
 
 	export default {
 		globalData: {
+			system_info: {},
 			index_page: "/pages/AppVirtualStore/trader/index",
 		},
 		onLaunch: function() {
@@ -18,8 +19,11 @@
 
 		methods: {
 			setSystemInfo() {
+				let self = this
 				uni.getSystemInfo({
 					success: function(e) {
+						self.$scope.globalData.system_info = e;
+						
 						// #ifndef MP
 						Vue.prototype.StatusBar = e.statusBarHeight;
 						if (e.platform == 'android') {

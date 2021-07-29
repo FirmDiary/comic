@@ -1,97 +1,69 @@
 <template>
-	<view class="container">
-		<cu-custom bgImage="/static/images/banner.png"></cu-custom>
+	<view
+		class="container"
+		v-if="is_load_over"
+		:style="{
+			'--status_bar_height': system_info.statusBarHeight + 'px',
+		}"
+	>
+		<!-- <cu-custom bgImage="https://comic-img.zwww.cool/images/banner.png"></cu-custom> -->
+		<!-- 		<image class="logo" src="https://comic-img.zwww.cool/images/banner.png" mode="aspectFit"></image>
 
-		<!-- <cu-custom bgImage="/static/images/banner.png" :isBack="true" ></cu-custom> -->
-		<!-- <cu -->
-		<!-- <image class="logo" src="/static/images/banner.png" mode="aspectFit"></image> -->
+		 -->
 
-		<view class="transfer" @tap="showModal"><view class="btn cu-btn bg-yellow lg shadow">开始</view></view>
-		
-		<view class="preview">
-			<view><image @tap="previewImgs(0)" :src="img_origin" mode="aspectFill"></image></view>
-			<view v-if="img_result"><image @tap="previewImgs(1)" :src="img_result" mode="aspectFill"></image></view>
-			<view class="preview-desc" v-if="img_desc">{{ img_desc }}</view>
-			<view class="box-btns" v-if="img_result && is_user_do">
-				<view class="cu-btn bg-brown shadow radius" @tap="save">保存</view>
-			</view>
-		</view>
-
-		<view class="cu-modal select_transfer" :class="modal_show ? 'show' : ''" @tap="hideModal">
-			<view class="cu-dialog" @tap.stop="">
-				<scroll-view scroll-x class="bg-black nav">
-					<view class="flex text-center">
-						<view
-							class="cu-item flex-sub"
-							:class="item.value == transfer_type ? 'text-yellow' : ''"
-							v-for="(item, index) in TRANSFER_TYPE"
-							:key="index"
-							@tap="tabSelect(item.value)"
-						>
-							{{ item.label }}
-						</view>
+		<swiper
+			v-if="show_etcs"
+			class="screen-swiper etcs"
+			:class="dotStyle ? 'square-dot' : 'round-dot'"
+			:indicator-dots="true"
+			:circular="true"
+			:autoplay="false"
+			interval="5000"
+			duration="500"
+			@change="cardSwiper"
+			indicator-color="#8799a3"
+			indicator-active-color="#fbbd08"
+		>
+			<swiper-item v-for="(item, index) in etcs" :key="index" :class="cardCur == index ? 'cur' : ''">
+				<view class="swiper-item">
+					<view class="etcs-imgs" :class="item.direction == IMG_DIRECTION_ROW ? 'h-50' : 'w-50'">
+						<image @tap="previewImgs(0)" :src="item.origin" mode="aspectFill"></image>
+						<image @tap="previewImgs(0)" :src="item.res" mode="aspectFill"></image>
 					</view>
-				</scroll-view>
-
-				<view class="etcs">
-					<swiper
-						class="screen-swiper"
-						style="min-height: 900rpx;"
-						:class="dotStyle ? 'square-dot' : 'round-dot'"
-						:indicator-dots="true"
-						:circular="true"
-						:autoplay="true"
-						interval="5000"
-						duration="500"
-					>
-						<swiper-item v-for="(item, index) in etc_imgs" class="bg-black" :key="index">
-							<image :src="item" mode="aspectFill"></image>
-						</swiper-item>
-					</swiper>
+					<view class="etcs-desc" v-if="item.desc">{{ item.desc }}</view>
 				</view>
+			</swiper-item>
+		</swiper>
+
+		<view class="transfer" @tap="upload"><view class="btn cu-btn bg-yellow lg shadow">开始</view></view>
+
+		<view class="preview" v-if="transfer_over">
+			<view class="preview-imgs">
+				<image @tap="previewImgs(0)" :src="img_origin" mode="aspectFill"></image>
+				<image @tap="previewImgs(1)" v-if="img_result" :src="img_result" mode="aspectFill"></image>
 			</view>
 
-			<button @tap="upload" class="btn cu-btn bg-yellow lg shadow select_transfer-next">
-				<text class="cuIcon-upload"></text>
-				上传
-			</button>
+			<view class="box-btns" v-if="img_result">
+				<view class="cu-btn bg-brown shadow radius" @tap="save">保存</view>
+				<view class="cu-btn bg-brown shadow radius" @tap="share">分享</view>
+			</view>
 		</view>
 	</view>
 </template>
 
 <script>
+import cuCustom from '@/static/colorui/components/cu-custom.vue';
+
 import Upload from '@/common/request/upload.js';
 let upload = new Upload();
 
 import config from '@/common/conifg.js';
-import { downloadFile } from '@/common/helper/utils.js';
-
-import cuCustom from '@/static/colorui/components/cu-custom.vue';
-
-const TRANSFER_TYPE = [
-	{
-		label: '脸部',
-		value: 1,
-	},
-	{
-		label: '其他',
-		value: 2,
-	},
-];
-
-const ETCS = {
-	1: [
-		'/static/images/face1.png',
-		'/static/images/face2.png',
-		'/static/images/face3.png',
-		'/static/images/face4.png',
-		'/static/images/face5.png',
-		'/static/images/face6.png',
-	],
-	2: ['/static/images/face4.png', '/static/images/face5.png', '/static/images/face6.png'],
-};
+import { downloadFile, getImgInfo } from '@/common/helper/utils.js';
 
 const IMG_OUT_URL = config.img_prefix;
+
+const IMG_DIRECTION_ROW = 1;
+const IMG_DIRECTION_COLUMN = 2;
 
 export default {
 	components: {
@@ -99,37 +71,63 @@ export default {
 	},
 	data() {
 		return {
-			TRANSFER_TYPE,
-			ETCS,
+			IMG_DIRECTION_ROW,
+			IMG_DIRECTION_COLUMN,
 
 			auth: {},
+			system_info: getApp().globalData.system_info,
+
+			etcs: [
+				
+			],
+			etc_directions: [],
 
 			image_support: ['png', 'jpg'],
 			image_size: 10,
 
-			is_user_do: false,
-			img_origin: 'http://tmp/G7np17pVb6Rpa4b631914a3dde7c01b80eba98fc6032.jpg', //转换前
+			img_origin: 'https://comic-img.zwww.cool/out/s0z4kdgdes9y.png', //转换前
 			img_result: 'https://comic-img.zwww.cool/out/s0z4kdgdes9y.png',
-			img_desc:
-				'《生活多美好》（1946年）曾经被美国电影学术权威的美国电影协会评价为“百年百部励志片榜首”，“影史最有力的影片TOP1”',
 
 			modal_show: true,
 			transfer_type: 1,
 
-			is_transfer: false,
+			is_transfering: false,
+			transfer_over: false,
+
+			cardCur: 0,
 		};
 	},
 
 	onLoad() {
-		this.checkLogin();
+		// this.checkLogin();
+		this.loadEtcs();
 	},
 	computed: {
-		// 支付宝小程序需写成计算属性,prop定义default仍报错
-		etc_imgs() {
-			return this.ETCS[this.transfer_type];
+		is_load_over() {
+			return this.show_etcs;
+		},
+		show_etcs() {
+			return this.etc_directions.length == this.etcs.length;
 		},
 	},
 	methods: {
+		async loadEtcs() {
+			let info = {};
+			this.$go.to('old_etc').then(res => {
+				console.log(res);
+				this.etcs = res.data
+				this.etcs.forEach(etc => {
+					(async () => {
+						info = await getImgInfo(etc.res);
+						Object.assign(etc, {
+							direction: info.width > info.height ? IMG_DIRECTION_ROW : IMG_DIRECTION_COLUMN,
+						});
+						this.etc_directions.push(1);
+					})();
+				});
+			})
+		},
+
 		checkLogin() {
 			let auth = this.$cache.get('auth');
 			if (auth) {
@@ -154,11 +152,23 @@ export default {
 		},
 
 		upload() {
+			if (this.is_transfering) {
+				this.$base.showToast('拼命绘制中...');
+				return;
+			}
 			wx.chooseImage({
 				count: 1,
 				// sizeType:['compressed'],
 				success: res => {
-					this.is_transfer = true;
+					this.transfer_over = true;
+					setTimeout(() => {
+						uni.pageScrollTo({
+							scrollTop: this.system_info.screenHeight,
+							duration:1000
+						});
+					}, 100);
+					this.$base.showLoading('上色中...');
+					this.is_transfering = true;
 
 					let file = res.tempFiles[0];
 					let file_name = file.name || file.path;
@@ -178,12 +188,13 @@ export default {
 						.uploadImg(file_name, head)
 						.then(res => {
 							this.img_result = IMG_OUT_URL + res.data.filename;
-							uni.hideLoading();
-							this.is_transfer = false;
+							this.is_transfering = false;
+							uni.hideLoading()
+							this.$base.showToast('上色成功!');
 						})
 						.catch(err => {
 							console.error(err);
-							this.is_transfer = false;
+							this.is_transfering = false;
 							this.$base.showToast('绘制失败~换张图片试试吧');
 						});
 				},
@@ -210,18 +221,8 @@ export default {
 			});
 		},
 
-		showModal(e) {
-			if (this.is_transfer) {
-				this.$base.showToast('拼命绘制中...');
-				return;
-			}
-			this.modal_show = true;
-		},
-		hideModal(e) {
-			this.modal_show = false;
-		},
-		tabSelect(value) {
-			this.transfer_type = value;
+		cardSwiper(e) {
+			this.cardCur = e.detail.current;
 		},
 	},
 };
@@ -234,7 +235,7 @@ page {
 
 .container {
 	min-height: 100vh;
-	background-image: linear-gradient(15deg, #333333, #fff);
+	background-image: linear-gradient(15deg, #dddddd, #333333);
 	padding-bottom: 80rpx;
 }
 
@@ -244,30 +245,68 @@ page {
 	// margin: 80rpx auto 0;
 }
 
-.preview {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: center;
-	margin-top: 40rpx;
-	padding: 0 20rpx;
+.swiper-item {
+	width: 100%;
+	height: 100%;
+}
 
-	image {
-		// width: 100%;
-		border-radius: 10rpx;
+.swiper-item image {
+	display: block;
+	margin: 0;
+	pointer-events: none;
+}
+.h-50 image {
+	height: 50% !important;
+}
+.w-50 image {
+	width: 50% !important;
+}
+
+.etcs {
+	height: 88vh;
+	padding: 0rpx 20rpx;
+	padding-top: calc(var(--status_bar_height) + 100rpx);
+
+	&-imgs {
+		width: 100%;
+		height: 80%;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
 	}
 
 	&-desc {
 		font-size: 26rpx;
 		color: #ffffff;
-		padding: 20rpx 80rpx 10rpx;
+		padding: 40rpx 80rpx;
 		word-break: break-all;
 		white-space: pre-line;
 	}
 }
 
+.preview {
+	padding: 0 20rpx;
+	width: 100%;
+	height: 100vh;
+	padding-top: calc(var(--status_bar_height) + 180rpx);
+
+	&-imgs {
+		height: 89%;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+	}
+
+	image {
+		width: 100%;
+		display: block;
+		height: 50%;
+	}
+}
+
 .transfer {
-	margin: 40rpx auto 60rpx;
 	display: flex;
 	justify-content: center;
 	.btn {
@@ -293,11 +332,13 @@ page {
 	}
 	&-btns {
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
 		align-items: center;
-		margin-top: 140rpx;
+		justify-content: space-evenly;
+		width: 100%;
+		margin-top: 46rpx;
+		margin-bottom: 56rpx;
 		.cu-btn {
-			margin-bottom: 30rpx;
 			width: 168rpx;
 		}
 	}

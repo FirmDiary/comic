@@ -53,6 +53,21 @@ export const saveToPhone = (path) => {
 	});
 };
 
+/**
+ * 保存图片至本地
+ * @param {String} path
+ */
+export const getImgInfo = (path) => {
+	return new Promise((resolve) => {
+		uni.getImageInfo({
+			src: path,
+			success: (res) => {
+				return resolve(res);
+			},
+		})
+	});
+};
+
 
 /**
  * canvas 文字单行截断

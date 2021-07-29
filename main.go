@@ -15,6 +15,11 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	commonParty := app.Party("/common")
+	common := mvc.New(commonParty)
+	common.Register(ctx)
+	common.Handle(new(controllers.CommonController))
+
 	uploadParty := app.Party("/upload")
 	upload := mvc.New(uploadParty)
 	upload.Register(ctx)
