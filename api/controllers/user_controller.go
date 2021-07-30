@@ -33,7 +33,6 @@ func (c *UserController) BeforeActivation(b mvc.BeforeActivation) {
 
 func (c *UserController) Login() common.Response {
 	appId, err := strconv.ParseInt(c.Ctx.GetHeader("app_id"), 10, 64)
-
 	if err != nil {
 		c.Ctx.Application().Logger().Error(err)
 		return common.ReErrorMsg(err.Error())

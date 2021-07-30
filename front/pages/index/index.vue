@@ -66,7 +66,7 @@
 			</view>
 		</view>
 
-		<view class="copyright">v1.0 | by deepai.org</view>
+		<view class="copyright">v1.1 | by deepai.org</view>
 	</view>
 </template>
 
