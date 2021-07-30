@@ -1,4 +1,4 @@
-package transfer
+package services
 
 import (
 	"comic/common"

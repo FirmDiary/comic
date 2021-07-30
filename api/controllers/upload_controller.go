@@ -3,7 +3,7 @@ package controllers
 import (
 	"comic/api/middleware"
 	"comic/common"
-	"comic/services/transfer"
+	"comic/services"
 	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
@@ -40,8 +40,15 @@ func (u *UploadController) TransferOldFix() common.Response {
 	}
 
 	user := middleware.ParseTokenToUser(u.Ctx)
+	userService := services.NewUserService()
+	userService.Get(user)
+	if user.Quota == 0 {
+		return common.ReSuccessData(map[string]int64{
+			"quota": user.Quota - 1,
+		})
+	}
 
-	service := transfer.NewDeepAiService()
+	service := services.NewDeepAiService()
 	filename, direction, err := service.TransferOldFix(file, user.Id)
 
 	if err != nil {
@@ -50,9 +57,11 @@ func (u *UploadController) TransferOldFix() common.Response {
 		return common.ReErrorMsg(err.Error())
 	}
 
-	return common.ReSuccessData(map[string]string{
+	type value interface{}
+	return common.ReSuccessData(map[string]value{
 		"filename":  filename,
 		"direction": direction,
+		"quota":     user.Quota,
 	})
 }
 
@@ -74,7 +83,7 @@ func (u *UploadController) TransferU2() common.Response {
 
 	user := middleware.ParseTokenToUser(u.Ctx)
 
-	service := transfer.NewUploadService()
+	service := services.NewUploadService()
 	path, err := service.Transfer(file, user.Id, transferType)
 
 	if err != nil {

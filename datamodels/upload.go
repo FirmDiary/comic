@@ -9,10 +9,8 @@ const (
 	PlateU2net   = 2
 	PlateBaiduAi = 3
 
-	TypeOldFix = iota //老照片修复
-
-	TypeFace = iota //u2net 人脸
-	TypeAll         //u2net 全部
+	TypeFace = 1 //u2net 人脸
+	TypeAll  = 2 //u2net 全部
 )
 
 type Upload struct {

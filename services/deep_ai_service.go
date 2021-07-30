@@ -1,6 +1,7 @@
-package transfer
+package services
 
 import (
+	"comic/common"
 	"comic/datamodels"
 	"comic/repositories"
 	"errors"
@@ -13,7 +14,7 @@ import (
 )
 
 const (
-	oldFix = 1
+	oldFix = 1 //老照片修复
 
 	api    = "https://api.deepai.org/api/colorizer"
 	apiKey = "764f9fc0-97de-4fe3-bf26-0c4ee9052139"
@@ -66,12 +67,39 @@ func (d DeepAiService) TransferOldFix(file multipart.File, userId int64) (filena
 
 	direction = GetImgDirection(fileUrlFull)
 
+	db := common.NewDbEngine()
+	session := db.NewSession()
+	defer session.Close()
+
+	err = session.Begin()
+	if err != nil {
+		return
+	}
 	//添加数据库记录
-	d.repository.Create(&datamodels.Upload{
+	_, err = d.repository.Create(&datamodels.Upload{
 		File:   filename,
 		UserId: userId,
 		Type:   oldFix,
+		Plate:  datamodels.PlateDeepAi,
 	})
+	if err != nil {
+		session.Rollback()
+		return
+	}
+
+	////去除额度
+	userService := NewUserService()
+	_, err = userService.DescQuotaByUserId(userId)
+	if err != nil {
+		session.Rollback()
+		return
+	}
+
+	err = session.Commit()
+	if err != nil {
+		session.Rollback()
+		return
+	}
 
 	filename += ImgType
 	return

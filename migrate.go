@@ -5,6 +5,7 @@ import (
 	"comic/datamodels"
 	"log"
 )
+
 //执行数据库迁移
 func main() {
 	db := common.NewDbEngine()
@@ -14,6 +15,9 @@ func main() {
 	db.Sync2(
 		new(datamodels.Upload),
 		new(datamodels.User),
+		new(datamodels.App),
+		new(datamodels.InviteLog),
+		new(datamodels.QuotaLog),
 	)
 	log.Println("init database success")
 }

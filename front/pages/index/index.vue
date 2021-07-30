@@ -6,6 +6,7 @@
 			'--status_bar_height': system_info.statusBarHeight + 'px',
 		}"
 	>
+		<view class="quota">额度:{{ user.quota }}</view>
 		<swiper
 			v-if="etcs.length"
 			class="screen-swiper etcs"
@@ -40,9 +41,32 @@
 
 			<view class="box-btns" v-if="img_result">
 				<view class="cu-btn bg-yellow shadow radius" @tap="save">保存</view>
-				<view class="cu-btn bg-yellow shadow radius" @tap="share">分享</view>
+				<button open-type="share"><view class="cu-btn bg-yellow shadow radius" @tap="share">分享</view></button>
 			</view>
 		</view>
+
+		<view class="cu-modal invite" :class="{ show: showTip }">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-yellow justify-end">
+					<view class="content">额度不足</view>
+					<view class="action" @tap="hideTip"><text class="cuIcon-close text-red"></text></view>
+				</view>
+				<view class="padding-xl invite-desc">
+					<p>
+						每邀请一名新用户可增加
+						<span>2</span>
+						次额度
+					</p>
+					<p>新用户仅需点开小程序即可完成邀请</p>
+					<p>邀请成功后下拉刷新额度</p>
+				</view>
+				<button open-type="share" class="invite-share">
+					<view class="cu-btn bg-yellow shadow radius lg" @tap="share">邀请</view>
+				</button>
+			</view>
+		</view>
+
+		<view class="copyright">v1.0 | by deepai.org</view>
 	</view>
 </template>
 
@@ -69,8 +93,11 @@ export default {
 			IMG_DIRECTION_ROW,
 			IMG_DIRECTION_COLUMN,
 
+			user: {},
 			auth: {},
 			system_info: getApp().globalData.system_info,
+
+			invite_id: 0,
 
 			etcs: [],
 			etc_directions: [],
@@ -82,38 +109,74 @@ export default {
 			img_direction: IMG_DIRECTION_COLUMN, //转换前
 			img_result: '',
 
-			modal_show: true,
-			transfer_type: 1,
-
 			is_transfering: false,
 			has_transfer: false,
 
 			cardCur: 0,
+
+			showTip: false,
 		};
 	},
 
-	onLoad() {
+	onLoad(options) {
+		this.invite_id = options.invite_id || 0;
 		this.checkLogin();
 		this.loadEtcs();
 	},
 	computed: {
 		is_load_over() {
-			return true;
+			return this.etcs.length;
 		},
 	},
+	onPullDownRefresh() {
+		this.$base.showLoading();
+		this.getUser();
+	},
+	onShareAppMessage(res) {
+		if (res.from === 'button') {
+			// console.log(res.target);
+		}
+		return {
+			title: '给你的黑白照片上色!',
+			imageUrl: this.img_result || '',
+			path: `/pages/index/index?invite_id=${this.user.id}`,
+		};
+	},
+	onShareTimeline() {
+		return {
+			title: '给你的黑白照片上色!',
+			imageUrl: this.img_result || '',
+			path: `/pages/index/index?invite_id=${this.user.id}`,
+		};
+	},
 	methods: {
-		async loadEtcs() {
-			let info = {};
+		loadEtcs() {
 			this.$go.to('old_etc').then(res => {
 				this.etcs = res.data;
 			});
 		},
-
+		getUser() {
+			this.$go.to('user').then(res => {
+				this.user = res.data;
+				uni.hideLoading();
+				uni.stopPullDownRefresh();
+			});
+		},
+		inviteSuccess() {
+			if (this.invite_id) {
+				//受邀请
+				this.$go.to('invite_success', { invite_id: this.invite_id }).then(res => {
+					console.log('受邀请:' + this.invite_id);
+					console.log(res);
+				});
+			}
+		},
 		checkLogin() {
 			let auth = this.$cache.get('auth');
 			if (auth) {
 				this.auth = auth;
 				this.$store.commit('login/login', auth);
+				this.getUser();
 				return;
 			}
 			wx.login().then(res => {
@@ -128,6 +191,8 @@ export default {
 						this.auth = auth;
 						this.$cache.set('auth', auth);
 						this.$store.commit('login/login', auth);
+						this.getUser();
+						this.inviteSuccess();
 					});
 			});
 		},
@@ -135,6 +200,11 @@ export default {
 		async upload() {
 			if (this.is_transfering) {
 				this.$base.showToast('拼命绘制中...');
+				return;
+			}
+			if (this.user.quota == 0) {
+				//额度不足
+				this.showTip = true;
 				return;
 			}
 			wx.chooseImage({
@@ -164,15 +234,20 @@ export default {
 					}
 					let head = {
 						Authorization: 'Bearer ' + this.auth.token,
-						transfer_type: this.transfer_type,
 					};
 					upload
 						.uploadImg(file_name, head)
 						.then(res => {
+							uni.hideLoading();
+							this.is_transfering = false;
+							if (res.quota == -1) {
+								//额度不足
+								this.showTip = true;
+								return;
+							}
 							this.img_result = IMG_OUT_URL + res.data.filename;
 							this.img_direction = res.data.direction;
-							this.is_transfering = false;
-							uni.hideLoading();
+							this.user.quota--;
 							this.$base.showToast('上色成功!');
 						})
 						.catch(err => {
@@ -207,11 +282,17 @@ export default {
 		cardSwiper(e) {
 			this.cardCur = e.detail.current;
 		},
+
+		hideTip() {
+			this.showTip = false;
+		},
 	},
 };
 </script>
 
 <style lang="scss">
+$light: #fbbd08;
+
 page {
 	color: #ffffff;
 }
@@ -273,11 +354,13 @@ page {
 	}
 
 	&-desc {
+		word-break: break-word;
+		white-space: pre-line;
 		font-size: 26rpx;
 		color: #ffffff;
 		padding: 40rpx 80rpx;
-		word-break: break-all;
-		white-space: pre-line;
+		line-height: 40rpx;
+		text-align: center;
 	}
 }
 
@@ -316,16 +399,6 @@ page {
 
 .box {
 	padding: 0 50rpx;
-	&-imgs {
-		display: flex;
-		justify-content: space-around;
-		align-items: center;
-		image {
-			width: 280rpx;
-			max-height: 800rpx;
-			border-radius: 10rpx;
-		}
-	}
 	&-btns {
 		display: flex;
 		flex-direction: row;
@@ -347,6 +420,46 @@ page {
 		position: fixed;
 		right: 4%;
 		bottom: 4%;
+	}
+}
+
+.copyright {
+	position: fixed;
+	text-align: center;
+	width: 100%;
+	bottom: 10rpx;
+	font-size: 20rpx;
+}
+
+.quota {
+	position: fixed;
+	text-align: center;
+	font-size: 24rpx;
+	top: calc(var(--status_bar_height) + 26rpx);
+	left: 26rpx;
+}
+.invite {
+	.cuIcon-close {
+		color: #fff;
+	}
+	&-desc {
+		color: #333;
+		font-size: 28rpx;
+		line-height: 50rpx;
+		span {
+			color: $light;
+			font-size: 32rpx;
+		}
+	}
+	&-share {
+		margin: 0rpx 0 40rpx;
+		background-color: #f8f8f8;
+	}
+
+	.cu-btn {
+		width: 272rpx;
+		font-size: 30rpx;
+		border-radius: 10rpx;
 	}
 }
 </style>

@@ -7,7 +7,7 @@ import (
 )
 
 type IUploadRepository interface {
-	Create(upload *datamodels.Upload) (int64, error)
+	Create(upload *datamodels.Upload) (id int64, err error)
 }
 
 type UploadRepository struct {
@@ -18,10 +18,10 @@ func NewUploadRepository() IUploadRepository {
 	return &UploadRepository{common.NewDbEngine()}
 }
 
-func (u UploadRepository) Create(upload *datamodels.Upload) (int64, error) {
-	_, err := u.db.InsertOne(upload)
+func (u UploadRepository) Create(upload *datamodels.Upload) (id int64, err error) {
+	_, err = u.db.InsertOne(upload)
 	if err != nil {
-		return 0, err
+		return
 	}
-	return upload.UserId, nil
+	return upload.Id, nil
 }

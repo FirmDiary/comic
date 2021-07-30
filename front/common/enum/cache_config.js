@@ -3,7 +3,7 @@
  */
 const CACHE_CONFIG = {
 	AUTH: {
-		ttl: 60*60*24*7,
+		ttl: 60 * 60 * 24 * 7,
 	},
 }
 

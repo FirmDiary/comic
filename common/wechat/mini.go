@@ -2,7 +2,7 @@ package wechat
 
 import (
 	"comic/common"
-	"comic/config"
+	"comic/repositories"
 	"github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/miniprogram"
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
@@ -13,11 +13,15 @@ type Mini struct {
 	app *miniprogram.MiniProgram
 }
 
-func NewMini() *Mini {
-	globalCfg := config.GetConfig()
+func NewMini(appId int64) *Mini {
+	appRepository := repositories.NewAppRepository()
+	has, app := appRepository.Get(appId)
+	if !has {
+		panic("app不存在" + string(appId))
+	}
 	offCfg := &miniConfig.Config{
-		AppID:     globalCfg.Mini.AppID,
-		AppSecret: globalCfg.Mini.AppSecret,
+		AppID:     app.AppId,
+		AppSecret: app.AppSecret,
 		Cache:     common.NewRedis(),
 	}
 

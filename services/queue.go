@@ -2,7 +2,6 @@ package services
 
 import (
 	"comic/common"
-	"comic/services/transfer"
 	"github.com/streadway/amqp"
 	"log"
 )
@@ -75,7 +74,7 @@ func DelImgHandler() {
 	go func() {
 		log.Println("图片删除任务监听中...")
 		for d := range msgs {
-			err = transfer.DelUploadImg(string(d.Body))
+			err = DelUploadImg(string(d.Body))
 			common.FailOnError(err, "执行文件删除失败")
 			log.Printf(" [执行文件删除,文件名：] %s", d.Body)
 		}

@@ -36,7 +36,7 @@ class Go {
 	/**
 	 * http 请求
 	 */
-	to(api, data = {}, ...query) {
+	to(api, data = {}) {
 		if (!API.hasOwnProperty(api)) {
 			console.error('api不存在!')
 			return;
@@ -44,11 +44,6 @@ class Go {
 		this._api = API[api]
 
 		let url = `${this.host}/${this._api.value}`;
-		if (query && query.length) {
-			query.forEach((que) => {
-				url += '/' + que
-			})
-		}
 		// console.log(this._goSetting);
 		// if (this._goSetting.loading) {
 		// 	showLoading()
@@ -67,7 +62,7 @@ class Go {
 					return resolve(res.data)
 				} else {
 					if (this._goSetting.errToast) {
-						showToast(res.data.message)
+						showToast(res.data.msg)
 					}
 					return reject(res)
 				}
@@ -92,7 +87,6 @@ class Go {
 		return new Promise((resolve, reject) => {
 			if (!this._api.no_auth) {
 				let token = store.state.login.token
-				console.log(token);
 				if (token) Object.assign(this._header, {
 					Authorization: "Bearer " + token
 				})

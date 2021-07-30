@@ -44,6 +44,7 @@ func BuildToken(user *datamodels.User) (tokenString string) {
 		// 根据需求，可以存一些必要的数据
 		"id":     user.Id,
 		"openid": user.Openid,
+		"app_id": user.AppId,
 		// 签发时间
 		"iat": time.Now().Unix(),
 		// 设定过期时间，便于测试，设置1分钟过期
@@ -86,5 +87,6 @@ func ParseTokenToUser(ctx iris.Context) *datamodels.User {
 	return &datamodels.User{
 		Id:     int64(jwtInfo["id"].(float64)),
 		Openid: jwtInfo["openid"].(string),
+		AppId:  int64(jwtInfo["app_id"].(float64)),
 	}
 }

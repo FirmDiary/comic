@@ -15,20 +15,21 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	commonParty := app.Party("/common")
-	common := mvc.New(commonParty)
+	common := mvc.New(app.Party("/common"))
 	common.Register(ctx)
 	common.Handle(new(controllers.CommonController))
 
-	uploadParty := app.Party("/upload")
-	upload := mvc.New(uploadParty)
+	upload := mvc.New(app.Party("/upload"))
 	upload.Register(ctx)
 	upload.Handle(new(controllers.UploadController))
 
-	userParty := app.Party("/user")
-	user := mvc.New(userParty)
+	user := mvc.New(app.Party("/user"))
 	user.Register(ctx)
 	user.Handle(new(controllers.UserController))
+
+	share := mvc.New(app.Party("/invite"))
+	share.Register(ctx)
+	share.Handle(new(controllers.InviteController))
 
 	app.Run(
 		iris.Addr("localhost:8081"),
