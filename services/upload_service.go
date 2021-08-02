@@ -3,6 +3,7 @@ package services
 import (
 	"bufio"
 	"comic/common"
+	"fmt"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -73,12 +74,16 @@ func SaveImgUrlToLocal(fileUrl string, name string, path string) string {
 func GetImgDirection(fileUrl string) (direction string) {
 	res, err := http.Get(fileUrl)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println("获取图片方向出现错误")
+		fmt.Println(err.Error())
+		return DirectionColumn
 	}
 	defer res.Body.Close()
 	img, _, err := image.Decode(res.Body)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println("获取图片方向出现错误")
+		fmt.Println(err.Error())
+		return DirectionColumn
 	}
 	width := img.Bounds().Dx()
 	height := img.Bounds().Dy()
