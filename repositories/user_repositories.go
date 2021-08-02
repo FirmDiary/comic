@@ -24,7 +24,7 @@ func NewUserRepository() IUserRepository {
 func (u *UserRepository) DecrQuota(user *datamodels.User) (quota int64, err error) {
 	quota = user.Quota
 	user.Quota = quota - 1
-	u.db.Id(user.Id).Update(user)
+	u.db.Id(user.Id).Cols("quota", "updated_at").Update(user)
 
 	return
 }

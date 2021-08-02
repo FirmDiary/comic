@@ -35,7 +35,8 @@ func (u *UserService) DescQuotaByUserId(userId int64) (quota int64, err error) {
 	if !has {
 		return quota, errors.New("用户不存在")
 	}
-	if quota = user.Quota; quota < 1 {
+	quota = user.Quota
+	if quota < 1 {
 		return quota, errors.New("额度不足")
 	}
 	quota, err = u.repository.DecrQuota(user)
