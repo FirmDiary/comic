@@ -14,30 +14,88 @@ import (
 )
 
 const (
-	oldFix = 1 //老照片修复
+	oldFix  = 1 //老照片修复
+	carton  = 2 //转换为卡通人物
+	waifu2x = 3 //通过图片像素放大两倍使其变清晰
 
-	api    = "https://api.deepai.org/api/colorizer"
+	apiOldFix = "https://api.deepai.org/api/colorizer"
+	apiCarton = "https://api.deepai.org/api/toonify"
+	api2x     = "https://api.deepai.org/api/waifu2x"
+
 	apiKey = "764f9fc0-97de-4fe3-bf26-0c4ee9052139"
 )
 
 type IDeepAiService interface {
-	TransferOldFix(file multipart.File, userId int64) (filename string, direction string, err error)
+	TransferOldFix(file multipart.File, userId int64, quota int) (filename string, direction string, err error)
+	TransferCarton(file multipart.File, userId int64, quota int) (filename string, direction string, err error)
+	Transfer2x(fileUrl string, userId int64, quota int) (filename string, direction string, err error)
 }
 
 type DeepAiService struct {
 	repository repositories.IUploadRepository
 }
 
+type TransferNeed struct {
+	fileUrl      string
+	userId       int64
+	transferType int
+	api          string
+	quota        int
+	direction    bool
+}
+
 func NewDeepAiService() IDeepAiService {
 	return &DeepAiService{repository: repositories.NewUploadRepository()}
 }
 
-func (d DeepAiService) TransferOldFix(file multipart.File, userId int64) (filename string, direction string, err error) {
+func (d DeepAiService) TransferOldFix(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
+	fileUrl := saveFile2Url(file)
+	transferNeed := NewTransferNeed(fileUrl, userId, oldFix, quota)
+	return d.transfer(transferNeed)
+}
+
+func (d DeepAiService) TransferCarton(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
+	fileUrl := saveFile2Url(file)
+	transferNeed := NewTransferNeed(fileUrl, userId, carton, quota)
+	return d.transfer(transferNeed)
+}
+
+func (d DeepAiService) Transfer2x(fileUrl string, userId int64, quota int) (filename string, direction string, err error) {
+	transferNeed := NewTransferNeed(fileUrl, userId, waifu2x, quota)
+	return d.transfer(transferNeed)
+}
+
+func NewTransferNeed(fileUrl string, userId int64, transferType int, quota int) (transferNeed *TransferNeed) {
+	transferNeed = &TransferNeed{
+		fileUrl:      fileUrl,
+		userId:       userId,
+		transferType: transferType,
+		api:          "",
+		quota:        quota,
+	}
+	switch transferNeed.transferType {
+	case oldFix:
+		transferNeed.api = apiOldFix
+		transferNeed.direction = true
+	case carton:
+		transferNeed.api = apiCarton
+		transferNeed.direction = true
+	case waifu2x:
+		transferNeed.api = api2x
+		transferNeed.direction = false
+	}
+	return
+}
+
+func saveFile2Url(file multipart.File) (filename string) {
 	filename = SaveImgFileToLocal(file, In)
-	fileUrlFull := GetFileUrl(filename, In)
+	return GetFileUrl(filename, In)
+}
+
+func (d DeepAiService) transfer(transferNeed *TransferNeed) (filename string, direction string, err error) {
 
 	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodPost, api, strings.NewReader("image="+fileUrlFull))
+	req, err := http.NewRequest(http.MethodPost, transferNeed.api, strings.NewReader("image="+transferNeed.fileUrl))
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +123,9 @@ func (d DeepAiService) TransferOldFix(file multipart.File, userId int64) (filena
 	resUrl := cc.Get("output_url").MustString()
 	SaveImgUrlToLocal(resUrl, filename, Out)
 
-	direction = GetImgDirection(fileUrlFull)
+	if transferNeed.direction {
+		direction = GetImgDirection(transferNeed.fileUrl)
+	}
 
 	db := common.NewDbEngine()
 	session := db.NewSession()
@@ -78,8 +138,8 @@ func (d DeepAiService) TransferOldFix(file multipart.File, userId int64) (filena
 	//添加数据库记录
 	_, err = d.repository.Create(&datamodels.Upload{
 		File:   filename,
-		UserId: userId,
-		Type:   oldFix,
+		UserId: transferNeed.userId,
+		Type:   transferNeed.transferType,
 		Plate:  datamodels.PlateDeepAi,
 	})
 	if err != nil {
@@ -87,12 +147,14 @@ func (d DeepAiService) TransferOldFix(file multipart.File, userId int64) (filena
 		return
 	}
 
-	////去除额度
-	userService := NewUserService()
-	_, err = userService.DescQuotaByUserId(userId)
-	if err != nil {
-		session.Rollback()
-		return
+	//去除额度
+	if transferNeed.quota != 0 {
+		userService := NewUserService()
+		_, err = userService.DescQuotaByUserId(transferNeed.userId)
+		if err != nil {
+			session.Rollback()
+			return
+		}
 	}
 
 	err = session.Commit()

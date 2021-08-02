@@ -292,14 +292,16 @@ export default {
 
 <style lang="scss">
 $light: #fbbd08;
+$dark: #333;
+$common: #ddd;
 
 page {
-	color: #ffffff;
+	color: $dark;
 }
 
 .container {
 	min-height: 100vh;
-	background-image: linear-gradient(15deg, #dddddd, #333333);
+	background-image: linear-gradient(15deg, $common, $dark);
 	padding-bottom: 80rpx;
 }
 
@@ -414,7 +416,7 @@ page {
 }
 
 .select_transfer {
-	color: #333;
+	color: $dark;
 
 	&-next {
 		position: fixed;
@@ -432,6 +434,7 @@ page {
 }
 
 .quota {
+	color: #fff;
 	position: fixed;
 	text-align: center;
 	font-size: 24rpx;
@@ -443,7 +446,7 @@ page {
 		color: #fff;
 	}
 	&-desc {
-		color: #333;
+		color: $dark;
 		font-size: 28rpx;
 		line-height: 50rpx;
 		span {
