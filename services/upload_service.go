@@ -26,6 +26,7 @@ const (
 
 	ImgUrlPrefix = "https://comic-img.zwww.cool" //图片域名
 
+	FileNameNum = 12
 )
 
 func GetFileUrl(name string, path string) string {
@@ -39,7 +40,7 @@ func GetFileUrl(name string, path string) string {
 }
 
 func SaveImgFileToLocal(file multipart.File, path string) string {
-	name := common.GetRandomString(12)
+	name := common.GetRandomString(FileNameNum)
 	out, err := os.OpenFile(dir+path+name+ImgType, os.O_WRONLY|os.O_CREATE, 06666)
 	defer out.Close()
 	if err != nil {

@@ -42,6 +42,7 @@ type TransferNeed struct {
 	api          string
 	quota        int
 	direction    bool
+	filename     string
 }
 
 func NewDeepAiService() IDeepAiService {
@@ -49,29 +50,37 @@ func NewDeepAiService() IDeepAiService {
 }
 
 func (d DeepAiService) TransferOldFix(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
-	fileUrl := saveFile2Url(file)
-	transferNeed := NewTransferNeed(fileUrl, userId, oldFix, quota)
+	fileUrl, filename := saveFile2Url(file)
+	transferNeed := NewTransferNeed(fileUrl, userId, oldFix, filename, quota)
 	return d.transfer(transferNeed)
 }
 
 func (d DeepAiService) TransferCarton(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
-	fileUrl := saveFile2Url(file)
-	transferNeed := NewTransferNeed(fileUrl, userId, carton, quota)
+	fileUrl, filename := saveFile2Url(file)
+	transferNeed := NewTransferNeed(fileUrl, userId, carton, filename, quota)
 	return d.transfer(transferNeed)
 }
 
 func (d DeepAiService) Transfer2x(fileUrl string, userId int64, quota int) (filename string, direction string, err error) {
-	transferNeed := NewTransferNeed(fileUrl, userId, waifu2x, quota)
+	index := strings.LastIndex(fileUrl, ".")
+	if index == -1 {
+		fmt.Println("获取图片名称出现错误" + fileUrl)
+		err = errors.New("获取图片名称出现错误" + fileUrl)
+		return
+	}
+	filename = fileUrl[index-FileNameNum : index]
+	transferNeed := NewTransferNeed(fileUrl, userId, waifu2x, filename, quota)
 	return d.transfer(transferNeed)
 }
 
-func NewTransferNeed(fileUrl string, userId int64, transferType int, quota int) (transferNeed *TransferNeed) {
+func NewTransferNeed(fileUrl string, userId int64, transferType int, filename string, quota int) (transferNeed *TransferNeed) {
 	transferNeed = &TransferNeed{
 		fileUrl:      fileUrl,
 		userId:       userId,
 		transferType: transferType,
 		api:          "",
 		quota:        quota,
+		filename:     filename,
 	}
 	switch transferNeed.transferType {
 	case oldFix:
@@ -87,13 +96,12 @@ func NewTransferNeed(fileUrl string, userId int64, transferType int, quota int) 
 	return
 }
 
-func saveFile2Url(file multipart.File) (filename string) {
+func saveFile2Url(file multipart.File) (fileUrl, filename string) {
 	filename = SaveImgFileToLocal(file, In)
-	return GetFileUrl(filename, In)
+	return GetFileUrl(filename, In), filename
 }
 
 func (d DeepAiService) transfer(transferNeed *TransferNeed) (filename string, direction string, err error) {
-
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodPost, transferNeed.api, strings.NewReader("image="+transferNeed.fileUrl))
 	if err != nil {
