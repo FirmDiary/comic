@@ -104,6 +104,8 @@ func saveFile2Url(file multipart.File) (fileUrl, filename string) {
 }
 
 func (d DeepAiService) transfer(transferNeed *TransferNeed) (filename string, direction string, err error) {
+	filename = transferNeed.filename
+
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodPost, transferNeed.api, strings.NewReader("image="+transferNeed.fileUrl))
 	if err != nil {
