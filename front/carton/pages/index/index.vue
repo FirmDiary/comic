@@ -137,14 +137,14 @@ export default {
 			// console.log(res.target);
 		}
 		return {
-			title: '给你的黑白照片上色!',
+			title: '使用人工智能将你变成卡通!',
 			imageUrl: this.img_result || '',
 			path: `/pages/index/index?invite_id=${this.user.id}`,
 		};
 	},
 	onShareTimeline() {
 		return {
-			title: '给你的黑白照片上色!',
+			title: '使用人工智能将你变成卡通!',
 			imageUrl: this.img_result || '',
 			path: `/pages/index/index?invite_id=${this.user.id}`,
 		};
@@ -211,6 +211,21 @@ export default {
 				count: 1,
 				// sizeType:['compressed'],
 				success: res => {
+					let file = res.tempFiles[0];
+					let file_name = file.name || file.path;
+
+					this.img_origin = file_name;
+					this.img_result = '';
+					let file_type = file_name.substr(file_name.lastIndexOf('.') + 1).toLowerCase();
+					if (!this.image_support.includes(file_type)) {
+						this.$base.showToast(`只支持${this.image_support.join("、")}格式的图片`);
+						return true;
+					}
+					if (file.size > 1024 * 1024 * this.image_size) {
+						this.$base.showToast(`图片大小请控制在${this.image_size}兆以内`);
+						return true;
+					}
+					
 					this.has_transfer = true;
 					setTimeout(() => {
 						uni.pageScrollTo({
@@ -218,20 +233,9 @@ export default {
 							duration: 1000,
 						});
 					}, 100);
-					this.$base.showLoading('上色中...');
+					this.$base.showLoading('绘制中...');
 					this.is_transfering = true;
-
-					let file = res.tempFiles[0];
-					let file_name = file.name || file.path;
-
-					this.img_origin = file_name;
-					this.img_result = '';
-					let file_type = file_name.substr(file_name.lastIndexOf('.') + 1).toLowerCase();
-					if (this.image_support.includes(file_type) && file.size > 1024 * 1024 * this.image_size) {
-						this.$base.showToast(`图片大小请控制在${this.image_size}兆以内`);
-						has_error = true;
-						return true;
-					}
+					
 					let head = {
 						Authorization: 'Bearer ' + this.auth.token,
 					};
@@ -248,7 +252,7 @@ export default {
 							this.img_result = IMG_OUT_URL + res.data.filename;
 							this.img_direction = res.data.direction;
 							this.user.quota--;
-							this.$base.showToast('上色成功!');
+							this.$base.showToast('绘制成功!');
 						})
 						.catch(err => {
 							console.error(err);
@@ -301,7 +305,7 @@ page {
 
 .container {
 	min-height: 100vh;
-	background-image: linear-gradient(15deg, $common, $dark);
+	background-image: linear-gradient(45deg, #1cbbb4, #0081ff);
 	padding-bottom: 80rpx;
 }
 
@@ -333,7 +337,7 @@ page {
 	flex-wrap: inherit !important;
 }
 .w-50 image {
-	max-height: 100%;
+	height: 50% !important;
 	border-radius: 10rpx;
 	width: 50% !important;
 }
@@ -382,7 +386,6 @@ page {
 
 	image {
 		display: block;
-		height: 100%;
 		height: 100%;
 	}
 }

@@ -57,6 +57,8 @@ func (d DeepAiService) TransferOldFix(file multipart.File, userId int64, quota i
 
 func (d DeepAiService) TransferCarton(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
 	fileUrl, filename := saveFile2Url(file)
+	fmt.Println(filename)
+	fmt.Println(fileUrl)
 	transferNeed := NewTransferNeed(fileUrl, userId, carton, filename, quota)
 	return d.transfer(transferNeed)
 }
