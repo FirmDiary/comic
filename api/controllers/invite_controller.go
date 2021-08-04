@@ -6,7 +6,6 @@ import (
 	"comic/datamodels"
 	"comic/repositories"
 	"comic/services"
-	"encoding/json"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"net/http"
@@ -15,14 +14,6 @@ import (
 
 type InviteController struct {
 	Ctx iris.Context
-}
-
-func (c *InviteController) parseForm() {
-	err := json.NewDecoder(c.Ctx.Request().Body).Decode(&form)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer c.Ctx.Request().Body.Close()
 }
 
 func (c *InviteController) BeforeActivation(b mvc.BeforeActivation) {

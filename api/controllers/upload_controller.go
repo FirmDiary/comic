@@ -5,6 +5,7 @@ import (
 	"comic/common"
 	"comic/datamodels"
 	"comic/services"
+	"encoding/json"
 	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
@@ -14,6 +15,14 @@ import (
 
 type UploadController struct {
 	Ctx iris.Context
+}
+
+func (u *UploadController) parseForm() {
+	err := json.NewDecoder(u.Ctx.Request().Body).Decode(&form)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer u.Ctx.Request().Body.Close()
 }
 
 func (u *UploadController) BeforeActivation(b mvc.BeforeActivation) {
@@ -83,8 +92,9 @@ func (u *UploadController) TransferFileUrl2x() common.Response {
 	userService := services.NewUserService()
 	userService.Get(user)
 
-	fileUrl := u.Ctx.FormValue("url")
-	useQuota := u.Ctx.FormValue("use_quota")
+	u.parseForm()
+	fileUrl := form["url"]
+	useQuota := form["use_quota"]
 
 	fmt.Println(fileUrl)
 	fmt.Println(useQuota)
