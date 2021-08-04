@@ -15,11 +15,9 @@ import (
 
 const (
 	oldFix  = 1 //老照片修复
-	carton  = 2 //转换为卡通人物
-	waifu2x = 3 //通过图片像素放大两倍使其变清晰
+	waifu2x = 2 //通过图片像素放大两倍使其变清晰
 
 	apiOldFix = "https://api.deepai.org/api/colorizer"
-	apiCarton = "https://api.deepai.org/api/toonify"
 	api2x     = "https://api.deepai.org/api/waifu2x"
 
 	apiKey = "764f9fc0-97de-4fe3-bf26-0c4ee9052139"
@@ -27,7 +25,6 @@ const (
 
 type IDeepAiService interface {
 	TransferOldFix(file multipart.File, userId int64, quota int) (filename string, direction string, err error)
-	TransferCarton(file multipart.File, userId int64, quota int) (filename string, direction string, err error)
 	Transfer2x(fileUrl string, userId int64, quota int) (filename string, direction string, err error)
 }
 
@@ -55,14 +52,6 @@ func (d DeepAiService) TransferOldFix(file multipart.File, userId int64, quota i
 	return d.transfer(transferNeed)
 }
 
-func (d DeepAiService) TransferCarton(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
-	fileUrl, filename := saveFile2Url(file)
-	fmt.Println(filename)
-	fmt.Println(fileUrl)
-	transferNeed := NewTransferNeed(fileUrl, userId, carton, filename, quota)
-	return d.transfer(transferNeed)
-}
-
 func (d DeepAiService) Transfer2x(fileUrl string, userId int64, quota int) (filename string, direction string, err error) {
 	index := strings.LastIndex(fileUrl, ".")
 	if index == -1 {
@@ -87,9 +76,6 @@ func NewTransferNeed(fileUrl string, userId int64, transferType int, filename st
 	switch transferNeed.transferType {
 	case oldFix:
 		transferNeed.api = apiOldFix
-		transferNeed.direction = true
-	case carton:
-		transferNeed.api = apiCarton
 		transferNeed.direction = true
 	case waifu2x:
 		transferNeed.api = api2x

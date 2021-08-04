@@ -40,8 +40,8 @@
 			</view>
 
 			<view class="box-btns" v-if="img_result">
-				<view class="cu-btn bg-yellow shadow radius" @tap="save">保存</view>
 				<button open-type="share"><view class="cu-btn bg-yellow shadow radius" @tap="share">分享</view></button>
+				<view class="cu-btn bg-yellow shadow radius" @tap="save()">保存</view>
 			</view>
 		</view>
 
@@ -63,6 +63,24 @@
 				<button open-type="share" class="invite-share">
 					<view class="cu-btn bg-yellow shadow radius lg" @tap="share">邀请</view>
 				</button>
+			</view>
+		</view>
+
+		<view class="cu-modal save" :class="{ show: saveTip }">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-yellow justify-end">
+					<view class="content">保存</view>
+					<view class="action" @tap="hideTip"><text class="cuIcon-close text-red"></text></view>
+				</view>
+				<view class="padding-xl invite-desc">
+					<p>是否消耗一个额度进行高清修复</p>
+					<p>如果图片不清晰可选择</p>
+				</view>
+
+				<view class="save-btns">
+					<view class="cu-btn  radius lg select2" @tap="save(1)">直接保存</view>
+					<view class="cu-btn bg-yellow shadow radius lg" @tap="save(2)">高清保存</view>
+				</view>
 			</view>
 		</view>
 
@@ -115,6 +133,7 @@ export default {
 			cardCur: 0,
 
 			showTip: false,
+			saveTip: false,
 		};
 	},
 
@@ -259,12 +278,39 @@ export default {
 			});
 		},
 
-		save() {
-			downloadFile(this.img_result).then(filePath => {
-				uni.saveImageToPhotosAlbum({
-					filePath,
+		save(type = 0) {
+			console.log(type);
+			if (!type) {
+				this.saveTip = true;
+				return;
+			}
+			if (type == 1) {
+				//直接保存
+				downloadFile(this.img_result).then(filePath => {
+					uni.saveImageToPhotosAlbum({
+						filePath,
+					});
 				});
-			});
+				return;
+			}
+
+			if (type == 2) {
+				//高清保存
+				this.$go
+					.to('transfer_waifu_2x', {
+						url: this.img_result,
+						use_quota: '1',
+					})
+					.then(res => {
+						console.log(res);
+					});
+				// downloadFile(this.img_result).then(filePath => {
+				// 	uni.saveImageToPhotosAlbum({
+				// 		filePath,
+				// 	});
+				// });
+				return;
+			}
 		},
 
 		previewImgs(index) {
@@ -441,10 +487,11 @@ page {
 	top: calc(var(--status_bar_height) + 26rpx);
 	left: 26rpx;
 }
+
+.cuIcon-close {
+	color: #fff;
+}
 .invite {
-	.cuIcon-close {
-		color: #fff;
-	}
 	&-desc {
 		color: $dark;
 		font-size: 28rpx;
@@ -463,6 +510,24 @@ page {
 		width: 272rpx;
 		font-size: 30rpx;
 		border-radius: 10rpx;
+	}
+}
+
+.save {
+	&-btns {
+		padding-bottom: 40rpx;
+		display: flex;
+		justify-content: space-around;
+
+		.cu-btn {
+			    width: 207rpx;
+			    font-size: 28rpx;
+			    border-radius: 12rpx;
+		}
+		.select2 {
+			    background-color: #f8f8f8 !important;
+			    border: 1rpx solid #ccc !important;
+		}
 	}
 }
 </style>

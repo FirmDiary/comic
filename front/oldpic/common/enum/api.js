@@ -16,6 +16,11 @@ const API = {
 		value: 'upload/transferOldFix',
 		method: 'post',
 	},
+	'transfer_waifu_2x': {
+		label: '放大高清图片',
+		value: 'upload/transfer2x',
+		method: 'post',
+	},
 	'old_etc': {
 		label: '获取案例',
 		value: 'common/old/etc',

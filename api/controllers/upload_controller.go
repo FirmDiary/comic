@@ -5,6 +5,7 @@ import (
 	"comic/common"
 	"comic/datamodels"
 	"comic/services"
+	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"mime/multipart"
@@ -18,7 +19,6 @@ type UploadController struct {
 func (u *UploadController) BeforeActivation(b mvc.BeforeActivation) {
 	//b.HandleMany(http.MethodPost, "/transferU2", "TransferU2", middleware.AuthTokenHandler().Serve)
 	b.HandleMany(http.MethodPost, "/transferOldFix", "TransferOldFix", middleware.AuthTokenHandler().Serve)
-	b.HandleMany(http.MethodPost, "/transferCarton", "TransferCarton", middleware.AuthTokenHandler().Serve)
 	b.HandleMany(http.MethodPost, "/transfer2x", "TransferFileUrl2x", middleware.AuthTokenHandler().Serve)
 }
 
@@ -78,33 +78,6 @@ func (u *UploadController) TransferOldFix() common.Response {
 	})
 }
 
-func (u *UploadController) TransferCarton() common.Response {
-	file, user, err := u.prepare()
-
-	if err != nil {
-		return common.ReErrorMsg(err.Error())
-	}
-	if user.Quota == 0 {
-		//额度不足
-		return common.ReSuccessData(map[string]int64{
-			"quota": -1,
-		})
-	}
-
-	service := services.NewDeepAiService()
-	filename, direction, err := service.TransferCarton(file, user.Id, 1)
-
-	if err != nil {
-		return u.dealErr(err)
-	}
-
-	type value interface{}
-	return common.ReSuccessData(map[string]value{
-		"filename":  filename,
-		"direction": direction,
-	})
-}
-
 func (u *UploadController) TransferFileUrl2x() common.Response {
 	user := middleware.ParseTokenToUser(u.Ctx)
 	userService := services.NewUserService()
@@ -112,6 +85,10 @@ func (u *UploadController) TransferFileUrl2x() common.Response {
 
 	fileUrl := u.Ctx.FormValue("url")
 	useQuota := u.Ctx.FormValue("use_quota")
+
+	fmt.Println(fileUrl)
+	fmt.Println(useQuota)
+	fmt.Println(66666)
 
 	quota := 0
 	if useQuota == "1" {
