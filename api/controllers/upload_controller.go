@@ -6,7 +6,6 @@ import (
 	"comic/datamodels"
 	"comic/services"
 	"encoding/json"
-	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"mime/multipart"
@@ -96,13 +95,15 @@ func (u *UploadController) TransferFileUrl2x() common.Response {
 	fileUrl := form["url"]
 	useQuota := form["use_quota"]
 
-	fmt.Println(fileUrl)
-	fmt.Println(useQuota)
-	fmt.Println(66666)
-
 	quota := 0
 	if useQuota == "1" {
 		quota = 1
+		if user.Quota == 0 {
+			//额度不足
+			return common.ReSuccessData(map[string]int64{
+				"quota": -1,
+			})
+		}
 	}
 
 	service := services.NewDeepAiService()

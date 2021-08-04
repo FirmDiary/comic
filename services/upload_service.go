@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"comic/common"
 	"fmt"
+	"github.com/h2non/bimg"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -68,6 +69,28 @@ func SaveImgUrlToLocal(fileUrl string, name string, path string) string {
 	writer := bufio.NewWriter(file)
 
 	io.Copy(writer, reader)
+
+	buffer, err := bimg.Read(filename)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
+
+	watermark := bimg.Watermark{
+		Text:       "Chuck Norris (c) 2315",
+		Opacity:    0.25,
+		Width:      200,
+		DPI:        100,
+		Margin:     150,
+		Font:       "sans bold 12",
+		Background: bimg.Color{255, 255, 255},
+	}
+
+	newImage, err := bimg.NewImage(buffer).Watermark(watermark)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
+
+	bimg.Write(dir+path+name+"water"+ImgType, newImage)
 
 	return GetFileUrl(name, Out)
 }

@@ -126,6 +126,7 @@ export default {
 			img_origin: '', //转换前
 			img_direction: IMG_DIRECTION_COLUMN, //转换前
 			img_result: '',
+			img_2x_result: '',
 
 			is_transfering: false,
 			has_transfer: false,
@@ -231,6 +232,7 @@ export default {
 				// sizeType:['compressed'],
 				success: res => {
 					this.has_transfer = true;
+
 					setTimeout(() => {
 						uni.pageScrollTo({
 							scrollTop: this.system_info.screenHeight,
@@ -243,8 +245,11 @@ export default {
 					let file = res.tempFiles[0];
 					let file_name = file.name || file.path;
 
+					this.img_direction = IMG_DIRECTION_COLUMN;
 					this.img_origin = file_name;
 					this.img_result = '';
+					this.img_2x_result = '';
+
 					let file_type = file_name.substr(file_name.lastIndexOf('.') + 1).toLowerCase();
 					if (this.image_support.includes(file_type) && file.size > 1024 * 1024 * this.image_size) {
 						this.$base.showToast(`图片大小请控制在${this.image_size}兆以内`);
@@ -279,12 +284,11 @@ export default {
 		},
 
 		save(type = 0) {
-			console.log(type);
-			if (!type) {
+			if (!type && !this.img_2x_result) {
 				this.saveTip = true;
 				return;
 			}
-			if (type == 1) {
+			if (type == 1 || this.img_2x_result) {
 				//直接保存
 				downloadFile(this.img_result).then(filePath => {
 					uni.saveImageToPhotosAlbum({
@@ -295,6 +299,12 @@ export default {
 			}
 
 			if (type == 2) {
+				if (this.user.quota == 0) {
+					//额度不足
+					this.showTip = true;
+					return;
+				}
+				this.$base.showLoading('高修修复中...');
 				//高清保存
 				this.$go
 					.to('transfer_waifu_2x', {
@@ -302,13 +312,30 @@ export default {
 						use_quota: '1',
 					})
 					.then(res => {
-						console.log(res);
+						uni.hideLoading();
+						if (res.quota == -1) {
+							//额度不足
+							this.showTip = true;
+							return;
+						}
+						this.img_2x_result = IMG_OUT_URL + res.data.filename;
+						this.img_result = this.img_2x_result;
+
+						this.user.quota--;
+						this.$base.showToast('修复成功!正在保存');
+
+						downloadFile(this.img_2x_result).then(filePath => {
+							uni.saveImageToPhotosAlbum({
+								filePath,
+							}).then(() => {
+								this.saveTip = false
+							});
+						});
+					})
+					.catch(err => {
+						console.error(err);
+						this.$base.showToast('修复失败~直接保存吧');
 					});
-				// downloadFile(this.img_result).then(filePath => {
-				// 	uni.saveImageToPhotosAlbum({
-				// 		filePath,
-				// 	});
-				// });
 				return;
 			}
 		},
@@ -318,7 +345,6 @@ export default {
 			if (this.img_result) {
 				images.push(this.img_result);
 			}
-			console.log(images);
 			uni.previewImage({
 				current: index,
 				urls: images,
@@ -520,13 +546,13 @@ page {
 		justify-content: space-around;
 
 		.cu-btn {
-			    width: 207rpx;
-			    font-size: 28rpx;
-			    border-radius: 12rpx;
+			width: 207rpx;
+			font-size: 28rpx;
+			border-radius: 12rpx;
 		}
 		.select2 {
-			    background-color: #f8f8f8 !important;
-			    border: 1rpx solid #ccc !important;
+			background-color: #f8f8f8 !important;
+			border: 1rpx solid #ccc !important;
 		}
 	}
 }
