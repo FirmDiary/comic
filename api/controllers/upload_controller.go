@@ -6,6 +6,7 @@ import (
 	"comic/datamodels"
 	"comic/services"
 	"encoding/json"
+	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
 	"mime/multipart"
@@ -94,6 +95,9 @@ func (u *UploadController) TransferFileUrl2x() common.Response {
 	u.parseForm()
 	fileUrl := form["url"]
 	useQuota := form["use_quota"]
+	fmt.Println(fileUrl)
+	fmt.Println(useQuota)
+	fmt.Println(form)
 
 	quota := 0
 	if useQuota == "1" {
