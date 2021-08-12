@@ -7,9 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bitly/go-simplejson"
-	"github.com/noelyahan/impexp"
-	"github.com/noelyahan/mergi"
-	"image"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
@@ -52,19 +49,6 @@ func NewDeepAiService() IDeepAiService {
 func (d DeepAiService) TransferOldFix(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
 	fileUrl, filename := saveFile2Url(file)
 	transferNeed := NewTransferNeed(fileUrl, userId, oldFix, filename, quota)
-
-	image1, _ := mergi.Import(impexp.NewFileImporter(dir + Out + filename + ImgType))
-	image2, _ := mergi.Import(impexp.NewFileImporter(dir + In + filename + ImgType))
-
-	horizontalImage, _ := mergi.Merge("TT", []image.Image{image1, image2})
-	err = mergi.Export(impexp.NewFileExporter(horizontalImage, dir+In+"666.png"))
-	fmt.Println(666)
-	fmt.Println(err)
-
-	verticalImage, _ := mergi.Merge("TB", []image.Image{image1, image2})
-	err = mergi.Export(impexp.NewFileExporter(verticalImage, dir+In+"777.png"))
-	fmt.Println(777)
-	fmt.Println(err)
 
 	return d.transfer(transferNeed)
 }
