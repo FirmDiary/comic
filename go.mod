@@ -21,6 +21,9 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/nats-io/nats-server/v2 v2.2.4 // indirect
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
+	github.com/noelyahan/impexp v0.0.0-20201209034304-ee159d84b42f // indirect
+	github.com/noelyahan/mergi v0.0.0-20190514155713-69271a4267fb
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/silenceper/wechat/v2 v2.0.6
 	github.com/sirupsen/logrus v1.8.1

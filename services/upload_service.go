@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"comic/common"
 	"fmt"
+	"github.com/noelyahan/impexp"
+	"github.com/noelyahan/mergi"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -68,6 +70,15 @@ func SaveImgUrlToLocal(fileUrl string, name string, path string) string {
 	writer := bufio.NewWriter(file)
 
 	io.Copy(writer, reader)
+
+	image1, _ := mergi.Import(impexp.NewFileImporter(dir + Out + name + ImgType))
+	image2, _ := mergi.Import(impexp.NewFileImporter(dir + In + name + ImgType))
+
+	horizontalImage, _ := mergi.Merge("TT", []image.Image{image1, image2})
+	mergi.Export(impexp.NewFileExporter(horizontalImage, dir+In+"666.png"))
+
+	verticalImage, _ := mergi.Merge("TB", []image.Image{image1, image2})
+	mergi.Export(impexp.NewFileExporter(verticalImage, dir+In+"777.png"))
 
 	return GetFileUrl(name, Out)
 }
