@@ -1,5 +1,5 @@
 {
-    "name" : "老照片上色",
+    "name" : "图图上色",
     "appid" : "__UNI__EAA7B26",
     "description" : "",
     "versionName" : "ColorUi for UniApp 2.1.4",
@@ -48,10 +48,12 @@
     /* 快应用特有相关 */
     "mp-weixin" : {
         /* 小程序特有相关 */
-        "appid" : "wx64030e2c2da6d130",
+        "appid" : "wx52625a11b4748093",
         "setting" : {
-            "urlCheck" : false,
-            "es6" : true
+            "urlCheck" : true,
+            "es6" : true,
+            "minified" : true,
+            "postcss" : true
         }
     },
     "h5" : {

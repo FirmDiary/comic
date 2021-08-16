@@ -87,7 +87,9 @@ func (c *UserController) Login() common.Response {
 func (c *UserController) UserInfo() common.Response {
 	user := middleware.ParseTokenToUser(c.Ctx)
 	userService := services.NewUserService()
-	userService.Get(user)
+	userService.Get(&datamodels.User{
+		Id: user.Id,
+	})
 
 	return common.ReSuccessData(map[string]int64{
 		"id":    user.Id,
