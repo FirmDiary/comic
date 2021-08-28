@@ -3,11 +3,13 @@ package services
 import (
 	"bufio"
 	"comic/common"
+	"encoding/base64"
 	"fmt"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
+	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -39,20 +41,32 @@ func GetFileUrl(name string, path string) string {
 	return ImgUrlPrefix + pathMid + name + ImgType
 }
 
-func SaveFile2Url(file multipart.File) (fileUrl, filename string) {
-	filename = SaveImgFileToLocal(file, In)
-	return GetFileUrl(filename, In), filename
+func SaveFile2Url(file multipart.File) (fileUrl, filename, imgBase64 string) {
+	filename, imgBase64 = SaveImgFileToLocal(file, In)
+	return GetFileUrl(filename, In), filename, imgBase64
 }
 
-func SaveImgFileToLocal(file multipart.File, path string) string {
-	name := common.GetRandomString(FileNameNum)
+func toBase64(b []byte) string {
+	return base64.StdEncoding.EncodeToString(b)
+}
+
+func SaveImgFileToLocal(file multipart.File, path string) (name, imgBase64 string) {
+	name = common.GetRandomString(FileNameNum)
 	out, err := os.OpenFile(dir+path+name+ImgType, os.O_WRONLY|os.O_CREATE, 06666)
 	defer out.Close()
 	if err != nil {
-		return ""
+		return
 	}
 	io.Copy(out, file)
-	return name
+
+	bytes, err := ioutil.ReadFile(dir + path + name + ImgType)
+	if err != nil {
+		log.Fatal(err)
+	}
+	imgBase64 += "data:image/png;base64,"
+	imgBase64 += toBase64(bytes)
+
+	return name, imgBase64
 }
 
 func SaveImgUrlToLocal(fileUrl string, name string, path string) string {
