@@ -157,14 +157,14 @@ export default {
 			// console.log(res.target);
 		}
 		return {
-			title: '给你的黑白照片上色!',
+			title: '破旧的老照片居然被修复了!',
 			imageUrl: this.img_result || '',
 			path: `/pages/index/index?invite_id=${this.user.id}`,
 		};
 	},
 	onShareTimeline() {
 		return {
-			title: '给你的黑白照片上色!',
+			title: '破旧的老照片居然被修复了!',
 			imageUrl: this.img_result || '',
 			path: `/pages/index/index?invite_id=${this.user.id}`,
 		};
@@ -239,7 +239,7 @@ export default {
 							duration: 1000,
 						});
 					}, 100);
-					this.$base.showLoading('上色中...');
+					this.$base.showLoading('修复中...');
 					this.is_transfering = true;
 
 					let file = res.tempFiles[0];
@@ -272,7 +272,7 @@ export default {
 							this.img_result = IMG_OUT_URL + res.data.filename;
 							this.img_direction = res.data.direction;
 							this.user.quota--;
-							this.$base.showToast('上色成功!');
+							this.$base.showToast('修复成功!');
 						})
 						.catch(err => {
 							console.error(err);
@@ -283,7 +283,7 @@ export default {
 			});
 		},
 
-		save(type = 0) {
+		save(type = 1) {
 			if (!type && !this.img_2x_result) {
 				this.saveTip = true;
 				return;
