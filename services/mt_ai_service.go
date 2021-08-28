@@ -42,7 +42,7 @@ func (m MTAiService) TransferOldFixMT(file multipart.File, userId int64, quota i
 	t := map[string]interface{}{
 		"media_data": fileUrl,
 		"media_profiles": map[string]interface{}{
-			"media_data_type": ImgType[1:],
+			"media_data_type": "url",
 		},
 	}
 	mediaInfoList = append(mediaInfoList, t)
