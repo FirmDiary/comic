@@ -39,12 +39,14 @@ func NewMTAiService() IMTAiService {
 func (m MTAiService) TransferOldFixMT(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
 	fileUrl, filename := SaveFile2Url(file)
 	var mediaInfoList []map[string]interface{}
+	fmt.Println(fileUrl)
+	fmt.Println(file)
 	t := map[string]interface{}{
-		"media_data": strings.NewReader("image=" + fileUrl),
+		"media_data": "",
 	}
 	d := map[string]interface{}{
 		"media_profiles": map[string]interface{}{
-			"media_data_type": ImgType,
+			"media_data_type": ImgType[1:],
 		},
 	}
 	mediaInfoList = append(mediaInfoList, t, d)
