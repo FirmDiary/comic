@@ -107,7 +107,7 @@ func (d MTAiService) transfer(transferNeedMT map[string]interface{}, userId int6
 		return filename, direction, errors.New("json解析出现错误，请重试")
 	}
 
-	resUrl := cc.Get("media_info_list").GetIndex(1).Get("media_data").MustString()
+	resUrl := cc.Get("media_info_list").GetIndex(0).Get("media_data").MustString()
 	fmt.Println(resUrl)
 	SaveImgUrlToLocal(resUrl, filename, Out)
 
