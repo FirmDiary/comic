@@ -47,7 +47,7 @@ func NewDeepAiService() IDeepAiService {
 }
 
 func (d DeepAiService) TransferOldFix(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
-	fileUrl, filename, _ := SaveFile2Url(file)
+	fileUrl, filename := SaveFile2Url(file)
 	transferNeed := NewTransferNeed(fileUrl, userId, oldFix, filename, quota)
 
 	return d.transfer(transferNeed)
