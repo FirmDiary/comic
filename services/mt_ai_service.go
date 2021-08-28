@@ -127,6 +127,6 @@ func (d MTAiService) transfer(transferNeedMT map[string]interface{}, userId int6
 		return
 	}
 
-	filename += ImgType
+	filenameFinal += ImgType
 	return
 }
