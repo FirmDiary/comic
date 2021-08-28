@@ -13,7 +13,7 @@ const API = {
 	},
 	'transfer_old_fix': {
 		label: '修复老照片',
-		value: 'upload/transferOldFix',
+		value: 'upload/transferOldFixMT',
 		method: 'post',
 	},
 	'transfer_waifu_2x': {

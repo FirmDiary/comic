@@ -55,6 +55,7 @@ func (m MTAiService) TransferOldFixMT(file multipart.File, userId int64, quota i
 		"extra":           map[string]interface{}{},
 		"media_info_list": mediaInfoList,
 	}
+	println(transferNeedMT)
 	return m.transfer(transferNeedMT, userId, quota)
 }
 
@@ -65,6 +66,9 @@ func (d MTAiService) transfer(transferNeedMT map[string]interface{}, userId int6
 	} else {
 		fmt.Println(string(b))
 	}
+	println(string(b))
+	println(apiOldFixMT + "?api_key=" + oldFixMTAppKey + "&api_secret=" + oldFixMTAppSecret)
+	println(strings.NewReader(string(b)))
 	resp, err := http.Post(apiOldFixMT+"?api_key="+oldFixMTAppKey+"&api_secret="+oldFixMTAppSecret,
 		"application/json",
 		strings.NewReader(string(b)))
