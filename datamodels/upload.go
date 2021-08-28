@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	PlateDeepAi  = 1
-	PlateU2net   = 2
-	PlateBaiduAi = 3
+	PlateDeepAi = 1
+	PlateU2net  = 2
+	PlateMTAi   = 3
 
 	TypeFace = 1 //u2net 人脸
 	TypeAll  = 2 //u2net 全部

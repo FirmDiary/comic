@@ -53,64 +53,44 @@ func (m MTAiService) TransferOldFixMT(file multipart.File, userId int64, quota i
 		"extra":           map[string]interface{}{},
 		"media_info_list": mediaInfoList,
 	}
-	println(transferNeedMT)
-	return m.transfer(transferNeedMT, userId, quota)
+	return m.transfer(transferNeedMT, userId, quota, filename)
 }
 
-func (d MTAiService) transfer(transferNeedMT map[string]interface{}, userId int64, quota int) (filename string, direction string, err error) {
-	b, json_err := json.Marshal(transferNeedMT) //json化结果集
-	if json_err != nil {
+func (d MTAiService) transfer(transferNeedMT map[string]interface{}, userId int64, quota int, filename string) (filenameFinal string, direction string, err error) {
+	filenameFinal = filename
+	params, err := json.Marshal(transferNeedMT) //json化结果集
+	if err != nil {
 		fmt.Println("encoding faild")
 	} else {
-		fmt.Println(string(b))
+		fmt.Println(string(params))
 	}
-	println(apiOldFixMT + "?api_key=" + oldFixMTAppKey + "&api_secret=" + oldFixMTAppSecret)
-	println(strings.NewReader(string(b)))
 	resp, err := http.Post(apiOldFixMT+"?api_key="+oldFixMTAppKey+"&api_secret="+oldFixMTAppSecret,
 		"application/json",
-		strings.NewReader(string(b)))
+		strings.NewReader(string(params)))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("encoding faild")
 	}
 	defer resp.Body.Close()
-	fmt.Println(resp)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		// handle error
+		fmt.Println("encoding faild")
 	}
-
-	//client := &http.Client{}
-	//
-	//req, err := http.NewRequest(http.MethodPost, apiOldFixMT, strings.NewReader("image="+transferNeedMT.fileUrl))
-	//if err != nil {
-	//    panic(err)
-	//}
-	//req.Header.Set("api-key", apiKey)
-	//req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	//
-	//resp, err := client.Do(req)
-	//if err != nil {
-	//    panic(err)
-	//}
-	//body, err := ioutil.ReadAll(resp.Body)
-
 	if resp.StatusCode != 200 {
 		fmt.Println(resp)
 		fmt.Println(string(body))
 		return filename, direction, errors.New("解析出现错误，请重试")
 	}
-	cc, err := simplejson.NewJson(body)
-	fmt.Println(cc)
+
+	res, err := simplejson.NewJson(body)
 	if err != nil {
 		fmt.Println(resp)
 		fmt.Println(string(body))
 		return filename, direction, errors.New("json解析出现错误，请重试")
 	}
 
-	resUrl := cc.Get("media_info_list").GetIndex(0).Get("media_data").MustString()
-	fmt.Println(resUrl)
-	SaveImgUrlToLocal(resUrl, filename, Out)
+	resUrl := res.Get("media_info_list").GetIndex(0).Get("media_data").MustString()
 
+	SaveImgUrlToLocal(resUrl, filename, Out)
 	db := common.NewDbEngine()
 	session := db.NewSession()
 	defer session.Close()
@@ -124,7 +104,7 @@ func (d MTAiService) transfer(transferNeedMT map[string]interface{}, userId int6
 		File:   filename,
 		UserId: userId,
 		Type:   oldFixMT,
-		Plate:  datamodels.PlateDeepAi,
+		Plate:  datamodels.PlateMTAi,
 	})
 	if err != nil {
 		session.Rollback()
