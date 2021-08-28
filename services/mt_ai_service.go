@@ -75,7 +75,6 @@ func (d MTAiService) transfer(transferNeedMT map[string]interface{}, userId int6
 	defer resp.Body.Close()
 	fmt.Println(resp)
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(body)
 	if err != nil {
 		// handle error
 	}
@@ -101,6 +100,7 @@ func (d MTAiService) transfer(transferNeedMT map[string]interface{}, userId int6
 		return filename, direction, errors.New("解析出现错误，请重试")
 	}
 	cc, err := simplejson.NewJson(body)
+	fmt.Println(cc)
 	if err != nil {
 		fmt.Println(resp)
 		fmt.Println(string(body))
