@@ -39,6 +39,11 @@ func GetFileUrl(name string, path string) string {
 	return ImgUrlPrefix + pathMid + name + ImgType
 }
 
+func SaveFile2Url(file multipart.File) (fileUrl, filename string) {
+	filename = SaveImgFileToLocal(file, In)
+	return GetFileUrl(filename, In), filename
+}
+
 func SaveImgFileToLocal(file multipart.File, path string) string {
 	name := common.GetRandomString(FileNameNum)
 	out, err := os.OpenFile(dir+path+name+ImgType, os.O_WRONLY|os.O_CREATE, 06666)

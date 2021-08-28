@@ -47,7 +47,7 @@ func NewDeepAiService() IDeepAiService {
 }
 
 func (d DeepAiService) TransferOldFix(file multipart.File, userId int64, quota int) (filename string, direction string, err error) {
-	fileUrl, filename := saveFile2Url(file)
+	fileUrl, filename := SaveFile2Url(file)
 	transferNeed := NewTransferNeed(fileUrl, userId, oldFix, filename, quota)
 
 	return d.transfer(transferNeed)
@@ -83,11 +83,6 @@ func NewTransferNeed(fileUrl string, userId int64, transferType int, filename st
 		transferNeed.direction = false
 	}
 	return
-}
-
-func saveFile2Url(file multipart.File) (fileUrl, filename string) {
-	filename = SaveImgFileToLocal(file, In)
-	return GetFileUrl(filename, In), filename
 }
 
 func (d DeepAiService) transfer(transferNeed *TransferNeed) (filename string, direction string, err error) {

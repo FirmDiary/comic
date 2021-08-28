@@ -1,0 +1,25 @@
+{
+	"pages": [{
+		"path": "pages/index/index",
+		"style": {
+			"enablePullDownRefresh": true
+		}
+	}],
+	"globalStyle": {
+		"mp-alipay": {
+			/* 支付宝小程序特有相关 */
+			"transparentTitle": "always",
+			"allowsBounceVertical": "NO"
+		},
+		"navigationBarBackgroundColor": "#000000",
+		"navigationBarTitleText": "老照片上色",
+		"navigationStyle": "custom",
+		"navigationBarTextStyle": "white"
+	},
+	"usingComponts": true,
+	"condition": { //模式配置，仅开发期间生效
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": []
+	}
+
+}

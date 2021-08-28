@@ -28,6 +28,7 @@ func (u *UploadController) BeforeActivation(b mvc.BeforeActivation) {
 	//b.HandleMany(http.MethodPost, "/transferU2", "TransferU2", middleware.AuthTokenHandler().Serve)
 	b.HandleMany(http.MethodPost, "/transferOldFix", "TransferOldFix", middleware.AuthTokenHandler().Serve)
 	b.HandleMany(http.MethodPost, "/transfer2x", "TransferFileUrl2x", middleware.AuthTokenHandler().Serve)
+	b.HandleMany(http.MethodPost, "/transferOldFixMT", "TransferOldFixMT", middleware.AuthTokenHandler().Serve)
 }
 
 func getFile(u *UploadController) (multipart.File, error) {
@@ -116,6 +117,33 @@ func (u *UploadController) TransferFileUrl2x() common.Response {
 	type value interface{}
 	return common.ReSuccessData(map[string]value{
 		"filename": filename,
+	})
+}
+
+func (u *UploadController) TransferOldFixMT() common.Response {
+	file, user, err := u.prepare()
+
+	if err != nil {
+		return common.ReErrorMsg(err.Error())
+	}
+	if user.Quota == 0 {
+		//额度不足
+		return common.ReSuccessData(map[string]int64{
+			"quota": -1,
+		})
+	}
+
+	service := services.NewMTAiService()
+	filename, direction, err := service.TransferOldFixMT(file, user.Id, 1)
+
+	if err != nil {
+		return u.dealErr(err)
+	}
+
+	type value interface{}
+	return common.ReSuccessData(map[string]value{
+		"filename":  filename,
+		"direction": direction,
 	})
 }
 
