@@ -63,7 +63,7 @@ func SaveImgFileToLocal(file multipart.File, path string) (name, imgBase64 strin
 	if err != nil {
 		log.Fatal(err)
 	}
-	imgBase64 += "data:image/png;base64,"
+	//imgBase64 += "data:image/png;base64,"
 	imgBase64 += toBase64(bytes)
 
 	return name, imgBase64
