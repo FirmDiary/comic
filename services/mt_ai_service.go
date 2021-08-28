@@ -73,7 +73,9 @@ func (d MTAiService) transfer(transferNeedMT map[string]interface{}, userId int6
 		fmt.Println(err)
 	}
 	defer resp.Body.Close()
+	fmt.Println(resp)
 	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(body)
 	if err != nil {
 		// handle error
 	}
