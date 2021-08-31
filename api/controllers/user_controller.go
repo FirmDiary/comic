@@ -50,11 +50,11 @@ func (c *UserController) Login() common.Response {
 
 	service := services.NewUserService()
 
-	user := datamodels.User{
+	user := &datamodels.User{
 		Openid: res.OpenID,
 		AppId:  appId,
 	}
-	has := service.Get(&user)
+	has := service.Get(user)
 	if !has {
 
 		AppRepository := repositories.NewAppRepository()
@@ -63,7 +63,7 @@ func (c *UserController) Login() common.Response {
 			return common.ReErrorMsg("App不存在:" + strconv.FormatInt(appId, 10))
 		}
 
-		user := &datamodels.User{
+		user = &datamodels.User{
 			Openid:  res.OpenID,
 			UnionId: res.UnionID,
 			AppId:   appId,
@@ -77,7 +77,7 @@ func (c *UserController) Login() common.Response {
 	}
 
 	return common.ReSuccessData(map[string]string{
-		"token": middleware.BuildToken(&user),
+		"token": middleware.BuildToken(user),
 	})
 }
 
