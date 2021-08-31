@@ -63,20 +63,17 @@ func (c *UserController) Login() common.Response {
 			return common.ReErrorMsg("App不存在:" + strconv.FormatInt(appId, 10))
 		}
 
-		//创建新用户
-		id, err := service.NewUser(&datamodels.User{
+		user := &datamodels.User{
 			Openid:  res.OpenID,
 			UnionId: res.UnionID,
 			AppId:   appId,
 			Quota:   app.DefaultQuota,
-		})
+		}
+		//创建新用户
+		_, err := service.NewUser(user)
 		if err != nil {
 			return common.ReErrorMsg(err.Error())
 		}
-		user = datamodels.User{
-			Id: id,
-		}
-		service.Get(&user)
 	}
 
 	return common.ReSuccessData(map[string]string{
