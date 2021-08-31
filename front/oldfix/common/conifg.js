@@ -12,7 +12,7 @@ if (environment === 'development') {
 const config = {
 	domain,
 
-	app_id: 1,
+	app_id: 2,
 
 	version: 'v1.1',
 
